@@ -1,38 +1,34 @@
 using System.Text.Json;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlogSite.Application.Dispatcher;
 
-public class Dispatcher
+public class Dispatcher : IDispatcher
 {
     private readonly IServiceProvider _provider;
-    private readonly string[] _knownEntities = { "Author", "BlogPost", "Category", "Comment" };
-    private readonly Dictionary<string, string> _actionMappings = new()
-    {
-        // Query mappings
-        { "getbyauthor", "GetBlogPostsByAuthor" },
-        { "getauthorbyid", "GetAuthorById" },
-        { "getauthorbyemail", "GetAuthorByEmail" },
-        { "getallauthors", "GetAllAuthors" },
-        { "getblogpostsbycategory", "GetBlogPostsByCategory" },
-        { "getpublishedblogposts", "GetPublishedBlogPosts" },
-        { "getallcategories", "GetAllCategories" },
-        
-        // Command mappings  
-        { "createauthor", "CreateAuthor" },
-        { "updateauthor", "UpdateAuthor" },
-        { "deleteauthor", "DeleteAuthor" },
-        { "createblogpost", "CreateBlogPost" },
-        { "publishblogpost", "PublishBlogPost" },
-        { "createcategory", "CreateCategory" }
-    };
+    private readonly IRequestTypeRegistry _registry;
 
-    public Dispatcher(IServiceProvider provider)
+    public Dispatcher(IServiceProvider provider, IRequestTypeRegistry registry)
     {
         _provider = provider;
+        _registry = registry;
     }
 
-    public async Task<object?> DispatchAsync(string action, JsonElement payload)
+    public async Task<DispatchResult> DispatchAsync(DispatchRequest request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = await DispatchInternalAsync(request.Action, request.Payload ?? JsonDocument.Parse("{}").RootElement);
+            return new DispatchResult(true, result);
+        }
+        catch (Exception ex)
+        {
+            return new DispatchResult(false, null, ex.Message, "DispatchError");
+        }
+    }
+
+    private async Task<object?> DispatchInternalAsync(string action, JsonElement payload)
     {
         // Normalize action to lowercase for comparison
         var normalizedAction = action.ToLowerInvariant();
@@ -41,12 +37,15 @@ public class Dispatcher
         bool isQuery = normalizedAction.StartsWith("get");
         string suffix = isQuery ? "Query" : "Command";
 
-        // Try to get mapped action name or parse dynamically
-        string className = GetClassName(normalizedAction, suffix);
+        // Parse action dynamically to get class name
+        string className = ParseActionToClassName(normalizedAction, suffix);
 
-        var type = FindTypeByName(className);
+        var type = _registry.ResolveRequestType(className);
         if (type is null)
-            throw new Exception($"Handler type '{className}' not found. Available actions: {string.Join(", ", _actionMappings.Keys)}");
+        {
+            var availableActions = GetAvailableActions();
+            throw new Exception($"Handler type '{className}' not found. Available actions: {string.Join(", ", availableActions)}");
+        }
 
         var instance = payload.Deserialize(type)!;
 
@@ -60,49 +59,55 @@ public class Dispatcher
         return await handler.Handle((dynamic)instance, CancellationToken.None);
     }
 
-    private string GetClassName(string normalizedAction, string suffix)
+    private string ParseActionToClassName(string normalizedAction, string suffix)
     {
-        // First try direct mapping
-        if (_actionMappings.TryGetValue(normalizedAction, out var mappedName))
+        // Dynamic parsing with smart entity detection
+        var knownEntities = GetKnownEntities();
+        
+        // Try to parse patterns with entity recognition
+        var bestMatch = FindBestEntityMatch(normalizedAction, knownEntities);
+        
+        if (bestMatch != null)
         {
-            return $"{mappedName}{suffix}";
+            var actionPart = normalizedAction.Replace(bestMatch.EntityName.ToLowerInvariant(), "");
+            var cleanAction = ToPascalCase(actionPart);
+            return $"{cleanAction}{bestMatch.EntityName}{suffix}";
         }
-
-        // If no direct mapping, try to parse dynamically
-        return ParseActionDynamically(normalizedAction, suffix);
+        
+        // Fallback: direct conversion
+        var directConversion = ToPascalCase(normalizedAction);
+        return $"{directConversion}{suffix}";
     }
 
-    private string ParseActionDynamically(string normalizedAction, string suffix)
+    private EntityMatch? FindBestEntityMatch(string normalizedAction, string[] entities)
     {
-        // Try to parse patterns like:
-        // "getbyauthor" → "GetByAuthor" + suffix
-        // "createauthor" → "CreateAuthor" + suffix
-        // "getauthorbyid" → "GetAuthorById" + suffix
+        EntityMatch? bestMatch = null;
+        int bestScore = 0;
 
-        // Convert to PascalCase
-        var parts = normalizedAction.Split(new[] { "by" }, StringSplitOptions.RemoveEmptyEntries);
-        
-        if (parts.Length == 2)
+        foreach (var entity in entities)
         {
-            // Handle patterns like "getbyauthor" or "getauthorbyid"
-            var firstPart = ToPascalCase(parts[0]);
-            var secondPart = ToPascalCase(parts[1]);
+            var entityLower = entity.ToLowerInvariant();
             
-            // Check if second part is an entity
-            if (_knownEntities.Any(e => e.Equals(secondPart, StringComparison.OrdinalIgnoreCase)))
+            // Check if action contains this entity name
+            if (normalizedAction.Contains(entityLower))
             {
-                return $"{firstPart}By{secondPart}{suffix}";
-            }
-            else
-            {
-                return $"{firstPart}{secondPart}{suffix}";
+                // Score based on length and position
+                int score = entityLower.Length;
+                if (normalizedAction.EndsWith(entityLower))
+                    score += 10; // Prefer entity at the end
+                
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestMatch = new EntityMatch(entity, entityLower);
+                }
             }
         }
-        
-        // Handle simple patterns like "createauthor", "getallauthors"
-        var actionName = ToPascalCase(normalizedAction);
-        return $"{actionName}{suffix}";
+
+        return bestMatch;
     }
+
+    private record EntityMatch(string EntityName, string LowerEntityName);
 
     private string ToPascalCase(string input)
     {
@@ -116,11 +121,42 @@ public class Dispatcher
         return result;
     }
 
-    private Type? FindTypeByName(string className)
+    private string[] GetKnownEntities()
     {
-        return AppDomain.CurrentDomain
-            .GetAssemblies()
-            .SelectMany(a => a.GetTypes())
-            .FirstOrDefault(t => t.Name.Equals(className, StringComparison.OrdinalIgnoreCase));
+        // Get entities from registry operations
+        var operations = _registry.GetAllOperations();
+        return operations.Select(op => op.EntityType)
+                        .Distinct()
+                        .ToArray();
+    }
+
+    private string[] GetAvailableActions()
+    {
+        var operations = _registry.GetAllOperations();
+        return operations.Select(op => CreateActionName(op))
+                        .ToArray();
+    }
+
+    private string CreateActionName(OperationMetadata operation)
+    {
+        // Convert operation metadata back to action name
+        // Example: GetAllAuthorsQuery -> getallauthors
+        var actionPart = operation.Action.ToLowerInvariant();
+        var entityPart = operation.EntityType.ToLowerInvariant();
+        
+        if (actionPart.Contains("all"))
+            return $"getall{entityPart}s";
+        if (actionPart.Contains("byid"))
+            return $"get{entityPart}byid";
+        if (actionPart.Contains("byemail"))
+            return $"get{entityPart}byemail";
+        if (actionPart.StartsWith("create"))
+            return $"create{entityPart}";
+        if (actionPart.StartsWith("update"))
+            return $"update{entityPart}";
+        if (actionPart.StartsWith("delete"))
+            return $"delete{entityPart}";
+            
+        return $"{actionPart}{entityPart}";
     }
 }

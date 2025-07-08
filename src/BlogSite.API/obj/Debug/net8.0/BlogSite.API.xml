@@ -4,5 +4,15 @@
         <name>BlogSite.API</name>
     </assembly>
     <members>
+        <member name="T:BlogSite.API.Endpoints.ApiRequest">
+            <summary>
+            Request DTO for the single API endpoint
+            </summary>
+        </member>
+        <member name="M:BlogSite.API.Endpoints.ApiRequest.#ctor(System.String,System.Text.Json.JsonElement)">
+            <summary>
+            Request DTO for the single API endpoint
+            </summary>
+        </member>
     </members>
 </doc>

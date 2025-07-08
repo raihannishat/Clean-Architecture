@@ -21,16 +21,31 @@ public static class DispatcherEndpoint
 
     private static async Task<IResult> HandleRequest(
         [FromBody] ApiRequest request,
-        Dispatcher dispatcher,
-        ILogger<Program> logger)
+        IDispatcher dispatcher,
+        ILogger<Program> logger,
+        CancellationToken cancellationToken)
     {
         try
         {
             logger.LogInformation("Handling request: {Action}", request.Action);
 
-            var result = await dispatcher.DispatchAsync(request.Action, request.Payload);
+            // Convert ApiRequest to DispatchRequest
+            var dispatchRequest = new DispatchRequest(
+                EntityType: "Unknown", // Will be parsed from action
+                Action: request.Action,
+                Payload: request.Payload
+            );
 
-            return Results.Ok(result);
+            var result = await dispatcher.DispatchAsync(dispatchRequest, cancellationToken);
+
+            if (result.Success)
+            {
+                return Results.Ok(result.Data);
+            }
+            else
+            {
+                return Results.Problem(result.ErrorMessage, statusCode: 400);
+            }
         }
         catch (Exception ex)
         {

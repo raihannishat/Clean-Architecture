@@ -26,49 +26,112 @@ public static class DispatcherExtensions
     {
         var registry = serviceProvider.GetRequiredService<IRequestTypeRegistry>();
 
-        // Register Author operations
-        RegisterAuthorOperations(registry);
-
-        // Register BlogPost operations
-        RegisterBlogPostOperations(registry);
-
-        // Register Category operations
-        RegisterCategoryOperations(registry);
+        // Dynamic operation discovery and registration
+        DiscoverAndRegisterOperations(registry);
 
         return serviceProvider;
     }
 
-    private static void RegisterAuthorOperations(IRequestTypeRegistry registry)
+    private static void DiscoverAndRegisterOperations(IRequestTypeRegistry registry)
     {
-        // Author Commands
-        registry.RegisterOperation("Command", "Author", "Create", typeof(CreateAuthorCommand), typeof(AuthorDto));
-        registry.RegisterOperation("Command", "Author", "Update", typeof(UpdateAuthorCommand), typeof(AuthorDto));
-        registry.RegisterOperation("Command", "Author", "Delete", typeof(DeleteAuthorCommand), typeof(bool));
+        // Auto-discover all operations from assemblies
+        var assemblies = new[]
+        {
+            Assembly.GetExecutingAssembly(), // Current assembly (Application)
+            Assembly.GetCallingAssembly(),   // Assembly that called this
+        };
 
-        // Author Queries
-        registry.RegisterOperation("Query", "Author", "GetAll", typeof(GetAllAuthorsQuery), typeof(IEnumerable<AuthorDto>));
-        registry.RegisterOperation("Query", "Author", "GetById", typeof(GetAuthorByIdQuery), typeof(AuthorDto));
-        registry.RegisterOperation("Query", "Author", "GetByEmail", typeof(GetAuthorByEmailQuery), typeof(AuthorDto));
+        var operations = new List<OperationMetadata>();
+
+        foreach (var assembly in assemblies)
+        {
+            // Find all IRequest implementations
+            var requestTypes = assembly.GetTypes()
+                .Where(type => IsValidRequestType(type))
+                .ToList();
+
+            foreach (var requestType in requestTypes)
+            {
+                var metadata = ParseTypeToOperationMetadata(requestType);
+                if (metadata != null)
+                {
+                    operations.Add(metadata);
+                }
+            }
+        }
+
+        // Log discovered operations for debugging
+        Console.WriteLine($"🔍 Discovered {operations.Count} operations:");
+        foreach (var op in operations.OrderBy(o => o.EntityType).ThenBy(o => o.OperationType).ThenBy(o => o.Action))
+        {
+            Console.WriteLine($"   ✅ {op.OperationType} | {op.EntityType} | {op.Action} → {op.RequestType.Name}");
+        }
     }
 
-    private static void RegisterBlogPostOperations(IRequestTypeRegistry registry)
+    private static bool IsValidRequestType(Type type)
     {
-        // BlogPost Commands
-        registry.RegisterOperation("Command", "BlogPost", "Create", typeof(CreateBlogPostCommand), typeof(BlogPostDto));
-        registry.RegisterOperation("Command", "BlogPost", "Publish", typeof(PublishBlogPostCommand), typeof(BlogPostDto));
+        if (type.IsAbstract || type.IsInterface || type.IsGenericTypeDefinition)
+            return false;
 
-        // BlogPost Queries
-        registry.RegisterOperation("Query", "BlogPost", "GetPublished", typeof(GetPublishedBlogPostsQuery), typeof(IEnumerable<BlogPostDto>));
-        registry.RegisterOperation("Query", "BlogPost", "GetByCategory", typeof(GetBlogPostsByCategoryQuery), typeof(IEnumerable<BlogPostDto>));
+        // Check if it implements IRequest or IRequest<T>
+        return typeof(IRequest).IsAssignableFrom(type) || 
+               type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequest<>));
     }
 
-    private static void RegisterCategoryOperations(IRequestTypeRegistry registry)
+    private static OperationMetadata? ParseTypeToOperationMetadata(Type type)
     {
-        // Category Commands
-        registry.RegisterOperation("Command", "Category", "Create", typeof(CreateCategoryCommand), typeof(CategoryDto));
+        var typeName = type.Name;
+        
+        // Determine operation type and remaining name
+        string operationType;
+        string remainingName;
+        
+        if (typeName.EndsWith("Query", StringComparison.OrdinalIgnoreCase))
+        {
+            operationType = "Query";
+            remainingName = typeName[..^5]; // Remove "Query"
+        }
+        else if (typeName.EndsWith("Command", StringComparison.OrdinalIgnoreCase))
+        {
+            operationType = "Command";
+            remainingName = typeName[..^7]; // Remove "Command"
+        }
+        else
+        {
+            return null; // Not a recognized pattern
+        }
 
-        // Category Queries
-        registry.RegisterOperation("Query", "Category", "GetAll", typeof(GetAllCategoriesQuery), typeof(IEnumerable<CategoryDto>));
+        // Parse {Action}{Entity} from remainingName
+        var entityMatch = FindEntityInTypeName(remainingName);
+        if (entityMatch == null)
+            return null;
+
+        var action = remainingName[..^entityMatch.Length];
+        if (string.IsNullOrEmpty(action))
+            return null;
+
+        // Get response type
+        var responseType = GetResponseType(type);
+        
+        return new OperationMetadata(operationType, entityMatch, action, type, responseType);
+    }
+
+    private static string? FindEntityInTypeName(string typeName)
+    {
+        // Known entity patterns - could be made more dynamic by scanning domain entities
+        var knownEntities = new[] { "Author", "BlogPost", "Category", "Comment" };
+        
+        return knownEntities.FirstOrDefault(entity => 
+            typeName.EndsWith(entity, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static Type? GetResponseType(Type requestType)
+    {
+        // Check if it implements IRequest<T>
+        var requestInterface = requestType.GetInterfaces()
+            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequest<>));
+
+        return requestInterface?.GetGenericArguments().FirstOrDefault();
     }
 
     public static IEnumerable<OperationSummary> GetOperationSummaries(this IRequestTypeRegistry registry)

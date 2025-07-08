@@ -1,8 +1,8 @@
-# BlogSite API: Minimal API Conversion Summary
+# BlogSite API: Dynamic Dispatch System with Minimal APIs
 
 ## Overview
 
-Successfully converted the BlogSite API from traditional controller-based architecture to ASP.NET Core Minimal APIs while maintaining all existing functionality and clean architecture principles.
+Successfully converted the BlogSite API from traditional controller-based architecture to a **Dynamic Dispatch System** using ASP.NET Core Minimal APIs with automatic CQRS handler discovery and routing.
 
 ## What Was Changed
 
@@ -13,12 +13,16 @@ Successfully converted the BlogSite API from traditional controller-based archit
   - `src/BlogSite.API/Controllers/CategoriesController.cs`
   - `src/BlogSite.API/Controllers/CommentsController.cs`
 
-### 2. Created Minimal API Endpoint Mappings
+### 2. Created Dynamic Dispatch System
 - **New Files Created:**
-  - `src/BlogSite.API/Endpoints/AuthorEndpoints.cs`
-  - `src/BlogSite.API/Endpoints/BlogPostEndpoints.cs`
-  - `src/BlogSite.API/Endpoints/CategoryEndpoints.cs`
-  - `src/BlogSite.API/Endpoints/CommentEndpoints.cs`
+  - `src/BlogSite.Application/Dispatcher/IDispatcher.cs` - Core dispatcher interface
+  - `src/BlogSite.Application/Dispatcher/Dispatcher.cs` - Dynamic request handler
+  - `src/BlogSite.Application/Dispatcher/IRequestTypeRegistry.cs` - Type registry interface
+  - `src/BlogSite.Application/Dispatcher/RequestTypeRegistry.cs` - Automatic type discovery
+  - `src/BlogSite.Application/Dispatcher/DispatcherExtensions.cs` - Service registration
+  - `src/BlogSite.Application/Dispatcher/OperationMetadata.cs` - Operation metadata model
+- **Updated Files:**
+  - `src/BlogSite.API/Program.cs` - Added dispatcher endpoint registration
 
 ### 3. Updated Program.cs
 - **Removed:**
@@ -30,48 +34,40 @@ Successfully converted the BlogSite API from traditional controller-based archit
   - Endpoint mappings for all resource types
   - Updated API description to mention Minimal APIs
 
-## Endpoint Structure Preserved
+## Dynamic API Structure
 
-All original API endpoints are preserved with identical functionality:
+Replaced static endpoints with a dynamic dispatch system:
 
-### Authors API (`/api/authors`)
-- ✅ `GET /api/authors` - Get all authors (uses MediatR CQRS)
-- ✅ `GET /api/authors/{id}` - Get author by ID
-- ✅ `GET /api/authors/email/{email}` - Get author by email
-- ✅ `POST /api/authors` - Create new author
-- ✅ `PUT /api/authors/{id}` - Update author
-- ✅ `DELETE /api/authors/{id}` - Delete author
+### Core Dispatch Endpoint
+- **Base Route**: `POST /api/dispatch/{action}`
+- **Dynamic Routing**: Automatically routes to appropriate CQRS handlers
+- **Auto-Discovery**: Finds handlers based on naming conventions
 
-### Blog Posts API (`/api/blogposts`)
-- ✅ `GET /api/blogposts` - Get all posts (uses Service layer)
-- ✅ `GET /api/blogposts/published` - Get published posts
-- ✅ `GET /api/blogposts/{id}` - Get post by ID
-- ✅ `GET /api/blogposts/author/{authorId}` - Get posts by author
-- ✅ `GET /api/blogposts/category/{categoryId}` - Get posts by category
-- ✅ `POST /api/blogposts` - Create new post
-- ✅ `PUT /api/blogposts/{id}` - Update post
-- ✅ `DELETE /api/blogposts/{id}` - Delete post
-- ✅ `POST /api/blogposts/{id}/publish` - Publish post
-- ✅ `POST /api/blogposts/{id}/unpublish` - Unpublish post
+### Supported Operations (Examples)
 
-### Categories API (`/api/categories`)
-- ✅ `GET /api/categories` - Get all categories (uses Service layer)
-- ✅ `GET /api/categories/{id}` - Get category by ID
-- ✅ `GET /api/categories/name/{name}` - Get category by name
-- ✅ `POST /api/categories` - Create new category
-- ✅ `PUT /api/categories/{id}` - Update category
-- ✅ `DELETE /api/categories/{id}` - Delete category
+#### Author Operations
+- ✅ `POST /api/dispatch/getallauthors` - Get all authors
+- ✅ `POST /api/dispatch/getauthorbyid` - Get author by ID  
+- ✅ `POST /api/dispatch/getauthorbyemail` - Get author by email
+- ✅ `POST /api/dispatch/createauthor` - Create new author
+- ✅ `POST /api/dispatch/updateauthor` - Update author
+- ✅ `POST /api/dispatch/deleteauthor` - Delete author
 
-### Comments API (`/api/comments`)
-- ✅ `GET /api/comments` - Get all comments (uses Service layer)
-- ✅ `GET /api/comments/{id}` - Get comment by ID
-- ✅ `GET /api/comments/post/{blogPostId}` - Get comments by post
-- ✅ `GET /api/comments/post/{blogPostId}/approved` - Get approved comments by post
-- ✅ `POST /api/comments` - Create new comment
-- ✅ `PUT /api/comments/{id}` - Update comment
-- ✅ `DELETE /api/comments/{id}` - Delete comment
-- ✅ `POST /api/comments/{id}/approve` - Approve comment
-- ✅ `POST /api/comments/{id}/reject` - Reject comment
+#### Category Operations
+- ✅ `POST /api/dispatch/getallcategories` - Get all categories
+- ✅ `POST /api/dispatch/createcategory` - Create new category
+
+#### Blog Post Operations
+- ✅ `POST /api/dispatch/getpublishedblogposts` - Get published posts
+- ✅ `POST /api/dispatch/getblogpostsbycategory` - Get posts by category
+- ✅ `POST /api/dispatch/createblogpost` - Create new post
+- ✅ `POST /api/dispatch/publishblogpost` - Publish post
+
+### Dynamic Features
+- **Automatic Case Conversion**: `getallauthors` → `GetAllAuthorsQuery`
+- **Smart Entity Detection**: Recognizes Author, BlogPost, Category, Comment entities
+- **Operation Type Resolution**: Automatically determines Query vs Command
+- **Type Discovery**: Finds handler types using reflection and naming conventions
 
 ## Key Features Preserved
 

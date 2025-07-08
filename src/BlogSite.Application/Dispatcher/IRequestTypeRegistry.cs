@@ -19,4 +19,9 @@ public interface IRequestTypeRegistry
     /// Gets all available operations from loaded assemblies
     /// </summary>
     IEnumerable<OperationMetadata> GetAllOperations();
+    
+    /// <summary>
+    /// Registers an operation manually (optional - auto-discovery is preferred)
+    /// </summary>
+    void RegisterOperation(string operationType, string entityType, string action, Type requestType, Type? responseType);
 }

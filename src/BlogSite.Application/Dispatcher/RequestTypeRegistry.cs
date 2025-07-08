@@ -11,6 +11,7 @@ public class RequestTypeRegistry : IRequestTypeRegistry
 {
     private readonly ConcurrentDictionary<string, Type> _typeCache = new();
     private readonly ConcurrentDictionary<string, OperationMetadata> _operationCache = new();
+    private readonly ConcurrentDictionary<string, OperationMetadata> _manualRegistrations = new();
     private readonly Assembly[] _assemblies;
 
     public RequestTypeRegistry()
@@ -77,6 +78,10 @@ public class RequestTypeRegistry : IRequestTypeRegistry
     {
         var operations = new List<OperationMetadata>();
 
+        // Add manual registrations first
+        operations.AddRange(_manualRegistrations.Values);
+
+        // Auto-discover from assemblies
         foreach (var assembly in _assemblies)
         {
             var requestTypes = assembly.GetTypes()
@@ -94,6 +99,13 @@ public class RequestTypeRegistry : IRequestTypeRegistry
         }
 
         return operations.DistinctBy(op => $"{op.OperationType}:{op.EntityType}:{op.Action}");
+    }
+
+    public void RegisterOperation(string operationType, string entityType, string action, Type requestType, Type? responseType)
+    {
+        var key = CreateKey(operationType, entityType, action);
+        var metadata = new OperationMetadata(operationType, entityType, action, requestType, responseType);
+        _manualRegistrations.TryAdd(key, metadata);
     }
 
     private bool IsValidRequestType(Type type)
