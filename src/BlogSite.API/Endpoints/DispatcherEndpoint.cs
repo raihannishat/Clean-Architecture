@@ -12,7 +12,7 @@ public static class DispatcherEndpoint
         endpoints.MapPost("/api", HandleRequest)
             .WithName("API")
             .WithSummary("Main API endpoint - Execute any operation dynamically")
-            .WithDescription("Single universal endpoint that can execute any registered command or query based on the 'type' parameter")
+            .WithDescription("Single universal endpoint that can execute any registered command or query based on the 'action' parameter")
             .WithTags("Main API")
             .Produces<object>()
             .Produces(400)
@@ -26,15 +26,15 @@ public static class DispatcherEndpoint
     {
         try
         {
-            logger.LogInformation("Handling request: {Type}", request.Type);
+            logger.LogInformation("Handling request: {Action}", request.Action);
 
-            var result = await dispatcher.DispatchAsync(request.Type, request.Payload);
+            var result = await dispatcher.DispatchAsync(request.Action, request.Payload);
 
             return Results.Ok(result);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling request for type: {Type}", request.Type);
+            logger.LogError(ex, "Error handling request for action: {Action}", request.Action);
             return Results.Problem(ex.Message);
         }
     }
@@ -44,6 +44,6 @@ public static class DispatcherEndpoint
 /// Request DTO for the single API endpoint
 /// </summary>
 public record ApiRequest(
-    string Type,
+    string Action,
     JsonElement Payload
 );

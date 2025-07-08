@@ -1,4 +1,4 @@
-using System.Text.Json;
+THIS SHOULD BE A LINTER ERRORusing System.Text.Json;
 using MediatR;
 
 namespace BlogSite.Application.Dispatcher;
