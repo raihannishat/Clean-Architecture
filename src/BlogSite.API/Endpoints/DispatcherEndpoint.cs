@@ -8,6 +8,25 @@ public static class DispatcherEndpoint
 {
     public static void MapDispatcherEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        // Root API endpoint - handles all operations dynamically
+        endpoints.MapPost("/api", HandleDispatchRequest)
+            .WithName("API")
+            .WithSummary("Main API endpoint - Execute any operation dynamically")
+            .WithDescription("Single universal endpoint that can execute any registered command or query based on the request payload")
+            .WithTags("Main API")
+            .Produces<DispatchResult>()
+            .Produces(400)
+            .Produces(500);
+
+        // Root API discovery endpoint
+        endpoints.MapGet("/api", GetAvailableOperations)
+            .WithName("APIDiscovery")
+            .WithSummary("Discover available operations")
+            .WithDescription("Returns all available operations that can be executed through the main API endpoint")
+            .WithTags("Main API")
+            .Produces<IEnumerable<OperationSummary>>();
+
+        // Legacy dispatch group for backward compatibility
         var group = endpoints.MapGroup("/api/dispatch")
             .WithTags("Dispatcher")
             .WithDescription("Single endpoint for dynamic command and query dispatching");
