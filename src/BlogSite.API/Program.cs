@@ -96,13 +96,7 @@ app.UseCors("BlogSitePolicy");
 
 app.UseAuthorization();
 
-// Map minimal API endpoints
-app.MapAuthorEndpoints();
-app.MapBlogPostEndpoints();
-app.MapCategoryEndpoints();
-app.MapCommentEndpoints();
-
-// Map dispatcher endpoint for dynamic dispatching
+// Map only the single dynamic dispatcher endpoint that handles all operations
 app.MapDispatcherEndpoints();
 
 // Create database and apply migrations if needed
