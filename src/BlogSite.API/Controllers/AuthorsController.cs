@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
 using BlogSite.Application.DTOs;
-using BlogSite.Application.Interfaces;
+using BlogSite.Application.Commands.Authors;
+using BlogSite.Application.Queries.Authors;
 
 namespace BlogSite.API.Controllers;
 
@@ -8,12 +10,12 @@ namespace BlogSite.API.Controllers;
 [Route("api/[controller]")]
 public class AuthorsController : ControllerBase
 {
-    private readonly IAuthorService _authorService;
+    private readonly IMediator _mediator;
     private readonly ILogger<AuthorsController> _logger;
 
-    public AuthorsController(IAuthorService authorService, ILogger<AuthorsController> logger)
+    public AuthorsController(IMediator mediator, ILogger<AuthorsController> logger)
     {
-        _authorService = authorService;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -25,7 +27,7 @@ public class AuthorsController : ControllerBase
     {
         try
         {
-            var authors = await _authorService.GetAllAuthorsAsync();
+            var authors = await _mediator.Send(new GetAllAuthorsQuery());
             return Ok(authors);
         }
         catch (Exception ex)
@@ -43,7 +45,7 @@ public class AuthorsController : ControllerBase
     {
         try
         {
-            var author = await _authorService.GetAuthorByIdAsync(id);
+            var author = await _mediator.Send(new GetAuthorByIdQuery(id));
             if (author == null)
             {
                 return NotFound($"Author with ID {id} not found");
@@ -65,7 +67,7 @@ public class AuthorsController : ControllerBase
     {
         try
         {
-            var author = await _authorService.GetAuthorByEmailAsync(email);
+            var author = await _mediator.Send(new GetAuthorByEmailQuery(email));
             if (author == null)
             {
                 return NotFound($"Author with email {email} not found");
@@ -92,7 +94,14 @@ public class AuthorsController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var createdAuthor = await _authorService.CreateAuthorAsync(createDto);
+            var command = new CreateAuthorCommand(
+                createDto.FirstName,
+                createDto.LastName,
+                createDto.Email,
+                createDto.Bio
+            );
+
+            var createdAuthor = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetAuthor), new { id = createdAuthor.Id }, createdAuthor);
         }
         catch (InvalidOperationException ex)
@@ -120,7 +129,14 @@ public class AuthorsController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var updatedAuthor = await _authorService.UpdateAuthorAsync(id, updateDto);
+            var command = new UpdateAuthorCommand(
+                id,
+                updateDto.FirstName,
+                updateDto.LastName,
+                updateDto.Bio
+            );
+
+            var updatedAuthor = await _mediator.Send(command);
             return Ok(updatedAuthor);
         }
         catch (KeyNotFoundException ex)
@@ -148,13 +164,12 @@ public class AuthorsController : ControllerBase
     {
         try
         {
-            await _authorService.DeleteAuthorAsync(id);
+            var result = await _mediator.Send(new DeleteAuthorCommand(id));
+            if (!result)
+            {
+                return NotFound($"Author with ID {id} not found");
+            }
             return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.LogWarning(ex, "Author {AuthorId} not found for deletion", id);
-            return NotFound(ex.Message);
         }
         catch (InvalidOperationException ex)
         {
