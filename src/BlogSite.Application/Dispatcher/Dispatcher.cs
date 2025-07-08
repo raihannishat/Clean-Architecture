@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace BlogSite.Application.Dispatcher;
 
 /// <summary>
-/// Core dispatcher implementation that dynamically handles requests
+/// Core dispatcher implementation that dynamically handles requests with convention-based routing
 /// </summary>
 public class Dispatcher : IDispatcher
 {
@@ -24,20 +24,34 @@ public class Dispatcher : IDispatcher
     {
         try
         {
-            _logger.LogInformation("Dispatching {OperationType} for {EntityType}.{Action}", 
-                request.OperationType, request.EntityType, request.Action);
+            _logger.LogInformation("Dispatching {EntityType}.{Action} (auto-detected as {OperationType})", 
+                request.EntityType, request.Action, request.OperationType);
 
-            // Get the operation metadata
+            // Try to resolve the operation using the new dynamic approach
             var operation = _registry.GetOperation(request.OperationType, request.EntityType, request.Action);
             if (operation == null)
             {
-                _logger.LogWarning("Operation not found: {OperationType}.{EntityType}.{Action}", 
-                    request.OperationType, request.EntityType, request.Action);
-                
-                return new DispatchResult(
-                    Success: false,
-                    ErrorMessage: $"Operation '{request.OperationType}.{request.EntityType}.{request.Action}' not found",
-                    ErrorCode: "OPERATION_NOT_FOUND"
+                // Fallback: try to resolve by the full type name directly
+                var requestType = _registry.ResolveRequestType(request.RequestTypeName);
+                if (requestType == null)
+                {
+                    _logger.LogWarning("Operation not found: {EntityType}.{Action} (expected type: {RequestTypeName})", 
+                        request.EntityType, request.Action, request.RequestTypeName);
+                    
+                    return new DispatchResult(
+                        Success: false,
+                        ErrorMessage: $"Operation '{request.EntityType}.{request.Action}' not found. Expected type: {request.RequestTypeName}",
+                        ErrorCode: "OPERATION_NOT_FOUND"
+                    );
+                }
+
+                // Create operation metadata from resolved type
+                operation = new OperationMetadata(
+                    request.OperationType, 
+                    request.EntityType, 
+                    request.Action, 
+                    requestType, 
+                    GetResponseType(requestType)
                 );
             }
 
@@ -55,8 +69,8 @@ public class Dispatcher : IDispatcher
             // Send the request through MediatR
             var result = await _mediator.Send(requestInstance, cancellationToken);
 
-            _logger.LogInformation("Successfully dispatched {OperationType} for {EntityType}.{Action}", 
-                request.OperationType, request.EntityType, request.Action);
+            _logger.LogInformation("Successfully dispatched {EntityType}.{Action} as {OperationType}", 
+                request.EntityType, request.Action, request.OperationType);
 
             return new DispatchResult(
                 Success: true,
@@ -66,14 +80,16 @@ public class Dispatcher : IDispatcher
                     ["OperationType"] = operation.OperationType,
                     ["EntityType"] = operation.EntityType,
                     ["Action"] = operation.Action,
-                    ["ResponseType"] = operation.ResponseType?.Name ?? "void"
+                    ["RequestTypeName"] = operation.RequestType.Name,
+                    ["ResponseType"] = operation.ResponseType?.Name ?? "void",
+                    ["Convention"] = $"Action '{request.Action}' auto-detected as {request.OperationType}"
                 }
             );
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error dispatching {OperationType} for {EntityType}.{Action}", 
-                request.OperationType, request.EntityType, request.Action);
+            _logger.LogError(ex, "Error dispatching {EntityType}.{Action} as {OperationType}", 
+                request.EntityType, request.Action, request.OperationType);
 
             return new DispatchResult(
                 Success: false,
@@ -207,5 +223,13 @@ public class Dispatcher : IDispatcher
     private static object? GetDefaultValue(Type type)
     {
         return type.IsValueType ? Activator.CreateInstance(type) : null;
+    }
+
+    private Type? GetResponseType(Type requestType)
+    {
+        var requestInterface = requestType.GetInterfaces()
+            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequest<>));
+
+        return requestInterface?.GetGenericArguments().FirstOrDefault();
     }
 }

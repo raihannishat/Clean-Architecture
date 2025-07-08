@@ -11,15 +11,26 @@ public interface IDispatcher
 }
 
 /// <summary>
-/// Generic request wrapper for dynamic dispatching
+/// Generic request wrapper for dynamic dispatching with automatic operation type detection
 /// </summary>
 public record DispatchRequest(
-    string OperationType,    // "Command" or "Query"
     string EntityType,       // "Author", "BlogPost", "Category", "Comment"
     string Action,           // "Create", "Update", "Delete", "GetAll", "GetById", etc.
     JsonElement? Payload,    // JSON payload containing the actual request data
     Dictionary<string, object>? Parameters = null  // Additional parameters (like IDs from route)
-);
+)
+{
+    /// <summary>
+    /// Automatically determines operation type based on action name
+    /// If action starts with "Get", returns "Query", otherwise returns "Command"
+    /// </summary>
+    public string OperationType => Action.StartsWith("Get", StringComparison.OrdinalIgnoreCase) ? "Query" : "Command";
+    
+    /// <summary>
+    /// Gets the full request type name with the appropriate suffix
+    /// </summary>
+    public string RequestTypeName => $"{Action}{EntityType}{OperationType}";
+};
 
 /// <summary>
 /// Generic response wrapper for dispatched requests
