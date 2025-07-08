@@ -1,5 +1,6 @@
 using System.Text.Json;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlogSite.Application.Dispatcher;
 

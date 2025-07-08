@@ -30,8 +30,8 @@ builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(BlogSite.Application.Commands.Authors.CreateAuthorCommand).Assembly);
 });
 
-// Register Dispatcher Pattern services
-builder.Services.AddDispatcher();
+// Register the simple Dispatcher
+builder.Services.AddScoped<Dispatcher>();
 
 // Register services (keeping for backward compatibility)
 builder.Services.AddScoped<IBlogPostService, BlogPostService>();
@@ -113,8 +113,5 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "An error occurred while creating/seeding the database.");
     }
 }
-
-// Register all operations in the dispatcher
-app.Services.RegisterAllOperations();
 
 app.Run();
