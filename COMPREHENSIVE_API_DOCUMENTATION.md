@@ -517,72 +517,106 @@ public interface ICommentRepository : IRepository<Comment>
 
 ---
 
-## REST API Endpoints
+## Single Dynamic API Endpoint
 
-### Authors Controller (`/api/authors`)
+The BlogSite API uses a **single universal endpoint** that handles all operations dynamically based on the action name.
+
+### Main Endpoint: `POST /api`
+
+All operations are performed through this single endpoint using a simple request format:
+
+```json
+{
+  "action": "actionname",
+  "payload": { /* request data */ }
+}
+```
+
+The API automatically determines:
+- **Operation Type**: Actions starting with "get" = Query, others = Command
+- **Entity Type**: Parsed from the action name
+- **Handler**: Dynamically mapped to appropriate CQRS handler
+
+### Author Operations
 
 #### Get All Authors
 ```http
-GET /api/authors
+POST /api
+Content-Type: application/json
+
+{
+  "action": "getallauthors",
+  "payload": {}
+}
 ```
 **Response**: `200 OK` with `IEnumerable<AuthorDto>`
 
 #### Get Author by ID
 ```http
-GET /api/authors/{id}
-```
-**Parameters:**
-- `id` (Guid): Author ID
+POST /api
+Content-Type: application/json
 
+{
+  "action": "getauthorbyid",
+  "payload": {
+    "id": "123e4567-e89b-12d3-a456-426614174000"
+  }
+}
+```
 **Responses:**
 - `200 OK`: Returns `AuthorDto`
 - `404 Not Found`: Author not found
 
 #### Get Author by Email
 ```http
-GET /api/authors/email/{email}
-```
-**Parameters:**
-- `email` (string): Author email address
+POST /api
+Content-Type: application/json
 
+{
+  "action": "getauthorbyemail",
+  "payload": {
+    "email": "john.doe@example.com"
+  }
+}
+```
 **Responses:**
 - `200 OK`: Returns `AuthorDto`
 - `404 Not Found`: Author not found
 
 #### Create Author
 ```http
-POST /api/authors
+POST /api
 Content-Type: application/json
 
 {
+  "action": "createauthor",
+  "payload": {
     "firstName": "John",
     "lastName": "Doe",
     "email": "john.doe@example.com",
     "bio": "Software Engineer and Tech Writer"
+  }
 }
 ```
-**Request Body**: `CreateAuthorDto`
-
 **Responses:**
-- `201 Created`: Returns created `AuthorDto` with `Location` header
+- `200 OK`: Returns created `AuthorDto`
 - `400 Bad Request`: Validation errors or email already exists
 
 #### Update Author
 ```http
-PUT /api/authors/{id}
+POST /api
 Content-Type: application/json
 
 {
+  "action": "updateauthor",
+  "payload": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
     "firstName": "John",
     "lastName": "Smith",
     "bio": "Updated bio"
+  }
 }
 ```
-**Parameters:**
-- `id` (Guid): Author ID
-
-**Request Body**: `UpdateAuthorDto`
-
 **Responses:**
 - `200 OK`: Returns updated `AuthorDto`
 - `400 Bad Request`: Validation errors
@@ -590,321 +624,169 @@ Content-Type: application/json
 
 #### Delete Author
 ```http
-DELETE /api/authors/{id}
-```
-**Parameters:**
-- `id` (Guid): Author ID
+POST /api
+Content-Type: application/json
 
+{
+  "action": "deleteauthor",
+  "payload": {
+    "id": "123e4567-e89b-12d3-a456-426614174000"
+  }
+}
+```
 **Responses:**
-- `204 No Content`: Author deleted successfully
+- `200 OK`: Returns `true` if deleted successfully
 - `400 Bad Request`: Author has associated blog posts
 - `404 Not Found`: Author not found
 
-### BlogPosts Controller (`/api/blogposts`)
-
-#### Get All Blog Posts
-```http
-GET /api/blogposts
-```
-**Response**: `200 OK` with `IEnumerable<BlogPostDto>`
+### BlogPost Operations
 
 #### Get Published Blog Posts
 ```http
-GET /api/blogposts/published
+POST /api
+Content-Type: application/json
+
+{
+  "action": "getpublishedblogposts",
+  "payload": {}
+}
 ```
 **Response**: `200 OK` with `IEnumerable<BlogPostDto>`
 
-#### Get Blog Post by ID
-```http
-GET /api/blogposts/{id}
-```
-**Parameters:**
-- `id` (Guid): Blog post ID
-
-**Responses:**
-- `200 OK`: Returns `BlogPostDto`
-- `404 Not Found`: Blog post not found
-
 #### Get Blog Posts by Author
 ```http
-GET /api/blogposts/author/{authorId}
-```
-**Parameters:**
-- `authorId` (Guid): Author ID
+POST /api
+Content-Type: application/json
 
+{
+  "action": "getbyauthor",
+  "payload": {
+    "authorId": "123e4567-e89b-12d3-a456-426614174000"
+  }
+}
+```
 **Response**: `200 OK` with `IEnumerable<BlogPostDto>`
 
 #### Get Blog Posts by Category
 ```http
-GET /api/blogposts/category/{categoryId}
-```
-**Parameters:**
-- `categoryId` (Guid): Category ID
+POST /api
+Content-Type: application/json
 
+{
+  "action": "getblogpostsbycategory",
+  "payload": {
+    "categoryId": "456e7890-e89b-12d3-a456-426614174000"
+  }
+}
+```
 **Response**: `200 OK` with `IEnumerable<BlogPostDto>`
 
 #### Create Blog Post
 ```http
-POST /api/blogposts
+POST /api
 Content-Type: application/json
 
 {
+  "action": "createblogpost",
+  "payload": {
     "title": "Getting Started with Clean Architecture",
     "content": "Full blog post content here...",
     "summary": "A comprehensive guide to implementing clean architecture",
     "authorId": "123e4567-e89b-12d3-a456-426614174000",
     "categoryId": "456e7890-e89b-12d3-a456-426614174000",
     "isPublished": false
+  }
 }
 ```
-**Request Body**: `CreateBlogPostDto`
-
 **Responses:**
-- `201 Created`: Returns created `BlogPostDto` with `Location` header
+- `200 OK`: Returns created `BlogPostDto`
 - `400 Bad Request`: Validation errors or invalid author/category IDs
-
-#### Update Blog Post
-```http
-PUT /api/blogposts/{id}
-Content-Type: application/json
-
-{
-    "title": "Updated Title",
-    "content": "Updated content...",
-    "summary": "Updated summary",
-    "categoryId": "456e7890-e89b-12d3-a456-426614174000",
-    "isPublished": true
-}
-```
-**Parameters:**
-- `id` (Guid): Blog post ID
-
-**Request Body**: `UpdateBlogPostDto`
-
-**Responses:**
-- `200 OK`: Returns updated `BlogPostDto`
-- `400 Bad Request`: Validation errors
-- `404 Not Found`: Blog post not found
 
 #### Publish Blog Post
 ```http
-POST /api/blogposts/{id}/publish
-```
-**Parameters:**
-- `id` (Guid): Blog post ID
+POST /api
+Content-Type: application/json
 
+{
+  "action": "publishblogpost",
+  "payload": {
+    "id": "123e4567-e89b-12d3-a456-426614174000"
+  }
+}
+```
 **Responses:**
 - `200 OK`: Returns updated `BlogPostDto`
 - `404 Not Found`: Blog post not found
 
-#### Unpublish Blog Post
-```http
-POST /api/blogposts/{id}/unpublish
-```
-**Parameters:**
-- `id` (Guid): Blog post ID
-
-**Responses:**
-- `200 OK`: Returns updated `BlogPostDto`
-- `404 Not Found`: Blog post not found
-
-#### Delete Blog Post
-```http
-DELETE /api/blogposts/{id}
-```
-**Parameters:**
-- `id` (Guid): Blog post ID
-
-**Responses:**
-- `204 No Content`: Blog post deleted successfully
-- `404 Not Found`: Blog post not found
-
-### Categories Controller (`/api/categories`)
+### Category Operations
 
 #### Get All Categories
 ```http
-GET /api/categories
+POST /api
+Content-Type: application/json
+
+{
+  "action": "getallcategories",
+  "payload": {}
+}
 ```
 **Response**: `200 OK` with `IEnumerable<CategoryDto>`
 
-#### Get Category by ID
-```http
-GET /api/categories/{id}
-```
-**Parameters:**
-- `id` (Guid): Category ID
-
-**Responses:**
-- `200 OK`: Returns `CategoryDto`
-- `404 Not Found`: Category not found
-
-#### Get Category by Name
-```http
-GET /api/categories/name/{name}
-```
-**Parameters:**
-- `name` (string): Category name
-
-**Responses:**
-- `200 OK`: Returns `CategoryDto`
-- `404 Not Found`: Category not found
-
 #### Create Category
 ```http
-POST /api/categories
+POST /api
 Content-Type: application/json
 
 {
+  "action": "createcategory",
+  "payload": {
     "name": "Technology",
     "description": "Posts about technology and software development"
+  }
 }
 ```
-**Request Body**: `CreateCategoryDto`
-
 **Responses:**
-- `201 Created`: Returns created `CategoryDto` with `Location` header
+- `200 OK`: Returns created `CategoryDto`
 - `400 Bad Request`: Validation errors or name already exists
 
-#### Update Category
-```http
-PUT /api/categories/{id}
-Content-Type: application/json
+## Available Actions Summary
 
-{
-    "name": "Tech & Innovation",
-    "description": "Updated description"
-}
-```
-**Parameters:**
-- `id` (Guid): Category ID
+### Author Actions
+- `getallauthors` - Get all authors
+- `getauthorbyid` - Get author by ID  
+- `getauthorbyemail` - Get author by email
+- `createauthor` - Create new author
+- `updateauthor` - Update author
+- `deleteauthor` - Delete author
 
-**Request Body**: `UpdateCategoryDto`
+### BlogPost Actions  
+- `getpublishedblogposts` - Get published posts
+- `getblogpostsbycategory` - Get posts by category
+- `getbyauthor` - Get posts by author
+- `createblogpost` - Create new blog post
+- `publishblogpost` - Publish blog post
 
-**Responses:**
-- `200 OK`: Returns updated `CategoryDto`
-- `400 Bad Request`: Validation errors or name conflict
-- `404 Not Found`: Category not found
+### Category Actions
+- `getallcategories` - Get all categories
+- `createcategory` - Create new category
 
-#### Delete Category
-```http
-DELETE /api/categories/{id}
-```
-**Parameters:**
-- `id` (Guid): Category ID
+## Dynamic Action Processing
 
-**Responses:**
-- `204 No Content`: Category deleted successfully
-- `400 Bad Request`: Category has associated blog posts
-- `404 Not Found`: Category not found
+The system automatically:
 
-### Comments Controller (`/api/comments`)
+1. **Determines Operation Type**: 
+   - Actions starting with "get" → Query operations
+   - Other actions → Command operations
 
-#### Get All Comments
-```http
-GET /api/comments
-```
-**Response**: `200 OK` with `IEnumerable<CommentDto>`
+2. **Parses Entity Type**: 
+   - Extracts entity from action name (author, blogpost, category)
 
-#### Get Comment by ID
-```http
-GET /api/comments/{id}
-```
-**Parameters:**
-- `id` (Guid): Comment ID
+3. **Maps to CQRS Handlers**:
+   - `getallauthors` → `GetAllAuthorsQuery` → `GetAllAuthorsQueryHandler`
+   - `createauthor` → `CreateAuthorCommand` → `CreateAuthorCommandHandler`
 
-**Responses:**
-- `200 OK`: Returns `CommentDto`
-- `404 Not Found`: Comment not found
-
-#### Get Comments for Blog Post
-```http
-GET /api/comments/post/{blogPostId}
-```
-**Parameters:**
-- `blogPostId` (Guid): Blog post ID
-
-**Response**: `200 OK` with `IEnumerable<CommentDto>`
-
-#### Get Approved Comments for Blog Post
-```http
-GET /api/comments/post/{blogPostId}/approved
-```
-**Parameters:**
-- `blogPostId` (Guid): Blog post ID
-
-**Response**: `200 OK` with `IEnumerable<CommentDto>` (approved only)
-
-#### Create Comment
-```http
-POST /api/comments
-Content-Type: application/json
-
-{
-    "authorName": "Jane Smith",
-    "authorEmail": "jane@example.com",
-    "content": "Great article! Very informative.",
-    "blogPostId": "789e1234-e89b-12d3-a456-426614174000"
-}
-```
-**Request Body**: `CreateCommentDto`
-
-**Responses:**
-- `201 Created`: Returns created `CommentDto` with `Location` header
-- `400 Bad Request`: Validation errors or invalid blog post ID
-
-#### Update Comment
-```http
-PUT /api/comments/{id}
-Content-Type: application/json
-
-{
-    "authorName": "Jane Smith",
-    "authorEmail": "jane.smith@example.com",
-    "content": "Updated comment content"
-}
-```
-**Parameters:**
-- `id` (Guid): Comment ID
-
-**Request Body**: `UpdateCommentDto`
-
-**Responses:**
-- `200 OK`: Returns updated `CommentDto`
-- `400 Bad Request`: Validation errors
-- `404 Not Found`: Comment not found
-
-#### Approve Comment
-```http
-POST /api/comments/{id}/approve
-```
-**Parameters:**
-- `id` (Guid): Comment ID
-
-**Responses:**
-- `200 OK`: Returns updated `CommentDto`
-- `404 Not Found`: Comment not found
-
-#### Reject Comment
-```http
-POST /api/comments/{id}/reject
-```
-**Parameters:**
-- `id` (Guid): Comment ID
-
-**Responses:**
-- `200 OK`: Returns updated `CommentDto`
-- `404 Not Found`: Comment not found
-
-#### Delete Comment
-```http
-DELETE /api/comments/{id}
-```
-**Parameters:**
-- `id` (Guid): Comment ID
-
-**Responses:**
-- `204 No Content`: Comment deleted successfully
-- `404 Not Found`: Comment not found
+4. **Error Handling**: 
+   - Provides helpful error messages with available actions list
 
 ---
 
@@ -1014,13 +896,16 @@ using (var scope = app.Services.CreateScope())
 
 #### 1. Create an Author
 ```bash
-curl -X POST "https://localhost:5001/api/authors" \
+curl -X POST "https://localhost:5001/api" \
   -H "Content-Type: application/json" \
   -d '{
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@example.com",
-    "bio": "Software engineer and technical writer"
+    "action": "createauthor",
+    "payload": {
+      "firstName": "John",
+      "lastName": "Doe", 
+      "email": "john.doe@example.com",
+      "bio": "Software engineer and technical writer"
+    }
   }'
 ```
 
@@ -1041,59 +926,77 @@ curl -X POST "https://localhost:5001/api/authors" \
 
 #### 2. Create a Category
 ```bash
-curl -X POST "https://localhost:5001/api/categories" \
+curl -X POST "https://localhost:5001/api" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Technology",
-    "description": "Posts about software development and technology trends"
+    "action": "createcategory",
+    "payload": {
+      "name": "Technology",
+      "description": "Posts about software development and technology trends"
+    }
   }'
 ```
 
 #### 3. Create a Blog Post
 ```bash
-curl -X POST "https://localhost:5001/api/blogposts" \
+curl -X POST "https://localhost:5001/api" \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Getting Started with Clean Architecture",
-    "content": "Clean Architecture is a software design philosophy...",
-    "summary": "Learn the fundamentals of clean architecture",
-    "authorId": "123e4567-e89b-12d3-a456-426614174000",
-    "categoryId": "456e7890-e89b-12d3-a456-426614174000",
-    "isPublished": false
+    "action": "createblogpost",
+    "payload": {
+      "title": "Getting Started with Clean Architecture",
+      "content": "Clean Architecture is a software design philosophy...",
+      "summary": "Learn the fundamentals of clean architecture",
+      "authorId": "123e4567-e89b-12d3-a456-426614174000",
+      "categoryId": "456e7890-e89b-12d3-a456-426614174000",
+      "isPublished": false
+    }
   }'
 ```
 
 #### 4. Publish the Blog Post
 ```bash
-curl -X POST "https://localhost:5001/api/blogposts/789e1234-e89b-12d3-a456-426614174000/publish"
-```
-
-#### 5. Add a Comment
-```bash
-curl -X POST "https://localhost:5001/api/comments" \
+curl -X POST "https://localhost:5001/api" \
   -H "Content-Type: application/json" \
   -d '{
-    "authorName": "Jane Smith",
-    "authorEmail": "jane@example.com",
-    "content": "Excellent article! Very helpful.",
-    "blogPostId": "789e1234-e89b-12d3-a456-426614174000"
+    "action": "publishblogpost",
+    "payload": {
+      "id": "789e1234-e89b-12d3-a456-426614174000"
+    }
   }'
 ```
 
-#### 6. Approve the Comment
+#### 5. Get Posts by Author (Your Example)
 ```bash
-curl -X POST "https://localhost:5001/api/comments/abc12345-e89b-12d3-a456-426614174000/approve"
+curl -X POST "https://localhost:5001/api" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "getbyauthor",
+    "payload": {
+      "authorId": "123e4567-e89b-12d3-a456-426614174000"
+    }
+  }'
+```
+
+#### 6. Get All Authors
+```bash
+curl -X POST "https://localhost:5001/api" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "getallauthors",
+    "payload": {}
+  }'
 ```
 
 ### C# Client Example
 
 ```csharp
-public class BlogSiteClient
+public class BlogSiteApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    public BlogSiteClient(HttpClient httpClient)
+    public BlogSiteApiClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
         _jsonOptions = new JsonSerializerOptions
@@ -1102,36 +1005,69 @@ public class BlogSiteClient
         };
     }
 
-    public async Task<AuthorDto> CreateAuthorAsync(CreateAuthorDto createDto)
+    private async Task<T> ExecuteActionAsync<T>(string action, object payload)
     {
-        var json = JsonSerializer.Serialize(createDto, _jsonOptions);
+        var request = new { action, payload };
+        var json = JsonSerializer.Serialize(request, _jsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         
-        var response = await _httpClient.PostAsync("/api/authors", content);
+        var response = await _httpClient.PostAsync("/api", content);
         response.EnsureSuccessStatusCode();
         
         var responseJson = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<AuthorDto>(responseJson, _jsonOptions)!;
+        return JsonSerializer.Deserialize<T>(responseJson, _jsonOptions)!;
+    }
+
+    public async Task<AuthorDto> CreateAuthorAsync(CreateAuthorDto createDto)
+    {
+        return await ExecuteActionAsync<AuthorDto>("createauthor", createDto);
     }
 
     public async Task<IEnumerable<AuthorDto>> GetAllAuthorsAsync()
     {
-        var response = await _httpClient.GetAsync("/api/authors");
-        response.EnsureSuccessStatusCode();
-        
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<IEnumerable<AuthorDto>>(json, _jsonOptions)!;
+        return await ExecuteActionAsync<IEnumerable<AuthorDto>>("getallauthors", new { });
     }
 
-    public async Task<BlogPostDto> PublishBlogPostAsync(Guid blogPostId)
+    public async Task<AuthorDto> GetAuthorByIdAsync(Guid id)
     {
-        var response = await _httpClient.PostAsync($"/api/blogposts/{blogPostId}/publish", null);
-        response.EnsureSuccessStatusCode();
-        
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<BlogPostDto>(json, _jsonOptions)!;
+        return await ExecuteActionAsync<AuthorDto>("getauthorbyid", new { id });
+    }
+
+    public async Task<IEnumerable<BlogPostDto>> GetPostsByAuthorAsync(Guid authorId)
+    {
+        return await ExecuteActionAsync<IEnumerable<BlogPostDto>>("getbyauthor", new { authorId });
+    }
+
+    public async Task<BlogPostDto> CreateBlogPostAsync(CreateBlogPostDto createDto)
+    {
+        return await ExecuteActionAsync<BlogPostDto>("createblogpost", createDto);
+    }
+
+    public async Task<BlogPostDto> PublishBlogPostAsync(Guid id)
+    {
+        return await ExecuteActionAsync<BlogPostDto>("publishblogpost", new { id });
+    }
+
+    public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
+    {
+        return await ExecuteActionAsync<IEnumerable<CategoryDto>>("getallcategories", new { });
     }
 }
+
+// Usage example
+var client = new BlogSiteApiClient(httpClient);
+
+// Create an author
+var newAuthor = await client.CreateAuthorAsync(new CreateAuthorDto
+{
+    FirstName = "John",
+    LastName = "Doe",
+    Email = "john.doe@example.com",
+    Bio = "Software engineer"
+});
+
+// Get posts by author
+var authorPosts = await client.GetPostsByAuthorAsync(newAuthor.Id);
 ```
 
 ### JavaScript/TypeScript Example
@@ -1156,16 +1092,23 @@ interface CreateAuthorDto {
     bio?: string;
 }
 
+interface ApiRequest {
+    action: string;
+    payload: any;
+}
+
 class BlogSiteApiClient {
     constructor(private baseUrl: string) {}
 
-    async createAuthor(createDto: CreateAuthorDto): Promise<AuthorDto> {
-        const response = await fetch(`${this.baseUrl}/api/authors`, {
+    private async executeAction<T>(action: string, payload: any = {}): Promise<T> {
+        const request: ApiRequest = { action, payload };
+        
+        const response = await fetch(`${this.baseUrl}/api`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(createDto),
+            body: JSON.stringify(request),
         });
 
         if (!response.ok) {
@@ -1173,28 +1116,34 @@ class BlogSiteApiClient {
         }
 
         return await response.json();
+    }
+
+    async createAuthor(createDto: CreateAuthorDto): Promise<AuthorDto> {
+        return this.executeAction<AuthorDto>('createauthor', createDto);
     }
 
     async getAllAuthors(): Promise<AuthorDto[]> {
-        const response = await fetch(`${this.baseUrl}/api/authors`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        return await response.json();
+        return this.executeAction<AuthorDto[]>('getallauthors');
     }
 
-    async publishBlogPost(blogPostId: string): Promise<BlogPostDto> {
-        const response = await fetch(`${this.baseUrl}/api/blogposts/${blogPostId}/publish`, {
-            method: 'POST',
-        });
+    async getAuthorById(id: string): Promise<AuthorDto> {
+        return this.executeAction<AuthorDto>('getauthorbyid', { id });
+    }
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    async getPostsByAuthor(authorId: string): Promise<BlogPostDto[]> {
+        return this.executeAction<BlogPostDto[]>('getbyauthor', { authorId });
+    }
 
-        return await response.json();
+    async createBlogPost(createDto: CreateBlogPostDto): Promise<BlogPostDto> {
+        return this.executeAction<BlogPostDto>('createblogpost', createDto);
+    }
+
+    async publishBlogPost(id: string): Promise<BlogPostDto> {
+        return this.executeAction<BlogPostDto>('publishblogpost', { id });
+    }
+
+    async getAllCategories(): Promise<CategoryDto[]> {
+        return this.executeAction<CategoryDto[]>('getallcategories');
     }
 }
 
@@ -1210,6 +1159,10 @@ const newAuthor = await client.createAuthor({
 });
 
 console.log('Created author:', newAuthor);
+
+// Get posts by this author
+const authorPosts = await client.getPostsByAuthor(newAuthor.id);
+console.log('Author posts:', authorPosts);
 ```
 
 ---
