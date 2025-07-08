@@ -10,22 +10,44 @@
 
 ```json
 {
-  "operationType": "command|query",
-  "entityType": "author|blogpost|category|comment",
-  "action": "create|update|delete|get|getall|getbyid|publish|etc",
-  "payload": { /* your data */ },
-  "parameters": { /* additional parameters */ }
+  "action": "getbyauthor|createauthor|updateauthor|deleteauthor|getallauthors|etc",
+  "payload": { /* your data */ }
 }
 ```
 
+## ⚡ Dynamic Action Processing
+
+এখন **শুধুমাত্র `action` field** যথেষ্ট! API automatically detect করবে:
+
+- **Operation Type**: Action যদি `get` দিয়ে শুরু হয় = Query, নাহলে = Command  
+- **Entity Type**: Action name থেকে automatically parse করা হবে
+- **Specific Action**: বাকি part থেকে কি করতে হবে বুঝবে
+
+### Action Naming Convention
+
+#### Query Actions (get দিয়ে শুরু)
+- `getallauthors` → GetAllAuthorsQuery
+- `getauthorbyid` → GetAuthorByIdQuery  
+- `getauthorbyemail` → GetAuthorByEmailQuery
+- `getpublishedblogposts` → GetPublishedBlogPostsQuery
+- `getblogpostsbycategory` → GetBlogPostsByCategoryQuery
+- `getbyauthor` → GetBlogPostsByAuthorQuery
+- `getallcategories` → GetAllCategoriesQuery
+
+#### Command Actions (get ছাড়া অন্য)
+- `createauthor` → CreateAuthorCommand
+- `updateauthor` → UpdateAuthorCommand
+- `deleteauthor` → DeleteAuthorCommand
+- `createblogpost` → CreateBlogPostCommand
+- `publishblogpost` → PublishBlogPostCommand
+- `createcategory` → CreateCategoryCommand
+
 ## Examples
 
-### 1. Create Author (POST)
+### 1. Create Author (Command)
 ```json
 {
-  "operationType": "command",
-  "entityType": "author",
-  "action": "create",
+  "action": "createauthor",
   "payload": {
     "firstName": "John",
     "lastName": "Doe",
@@ -35,22 +57,19 @@
 }
 ```
 
-### 2. Get All Authors (GET)
+### 2. Get All Authors (Query)
 ```json
 {
-  "operationType": "query",
-  "entityType": "author",
-  "action": "getall"
+  "action": "getallauthors",
+  "payload": {}
 }
 ```
 
 ### 3. Get Author By ID
 ```json
 {
-  "operationType": "query",
-  "entityType": "author",
-  "action": "getbyid",
-  "parameters": {
+  "action": "getauthorbyid",
+  "payload": {
     "id": "123e4567-e89b-12d3-a456-426614174000"
   }
 }
@@ -59,30 +78,26 @@
 ### 4. Create Blog Post
 ```json
 {
-  "operationType": "command",
-  "entityType": "blogpost",
-  "action": "create",
+  "action": "createblogpost",
   "payload": {
     "title": "My First Post",
     "content": "This is the content of my blog post",
+    "summary": "Post summary",
     "authorId": "123e4567-e89b-12d3-a456-426614174000",
     "categoryId": "123e4567-e89b-12d3-a456-426614174001"
   }
 }
 ```
 
-### 5. Update Blog Post
+### 5. Update Author
 ```json
 {
-  "operationType": "command",
-  "entityType": "blogpost", 
-  "action": "update",
+  "action": "updateauthor",
   "payload": {
-    "title": "Updated Title",
-    "content": "Updated content"
-  },
-  "parameters": {
-    "id": "123e4567-e89b-12d3-a456-426614174002"
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "firstName": "Updated John",
+    "lastName": "Updated Doe",
+    "bio": "Senior Software Developer"
   }
 }
 ```
@@ -90,10 +105,8 @@
 ### 6. Publish Blog Post
 ```json
 {
-  "operationType": "command",
-  "entityType": "blogpost",
-  "action": "publish",
-  "parameters": {
+  "action": "publishblogpost",
+  "payload": {
     "id": "123e4567-e89b-12d3-a456-426614174002"
   }
 }
@@ -102,19 +115,16 @@
 ### 7. Get Published Posts
 ```json
 {
-  "operationType": "query",
-  "entityType": "blogpost",
-  "action": "getpublished"
+  "action": "getpublishedblogposts",
+  "payload": {}
 }
 ```
 
-### 8. Get Posts by Author
+### 8. Get Posts by Author (🆕 Example from your request)
 ```json
 {
-  "operationType": "query",
-  "entityType": "blogpost",
   "action": "getbyauthor",
-  "parameters": {
+  "payload": {
     "authorId": "123e4567-e89b-12d3-a456-426614174000"
   }
 }
@@ -123,68 +133,97 @@
 ### 9. Delete Author
 ```json
 {
-  "operationType": "command",
-  "entityType": "author",
-  "action": "delete",
-  "parameters": {
+  "action": "deleteauthor",
+  "payload": {
     "id": "123e4567-e89b-12d3-a456-426614174000"
   }
 }
 ```
 
-## Available Entities
-- **author**: Author management
-- **blogpost**: Blog post management  
-- **category**: Category management
-- **comment**: Comment management
+### 10. Get Author by Email
+```json
+{
+  "action": "getauthorbyemail",
+  "payload": {
+    "email": "john@example.com"
+  }
+}
+```
 
-## Available Operations
-- **Commands**: create, update, delete, publish, unpublish
-- **Queries**: get, getall, getbyid, getbyemail, getpublished, getbyauthor, getbycategory
+### 11. Get BlogPosts by Category
+```json
+{
+  "action": "getblogpostsbycategory",
+  "payload": {
+    "categoryId": "123e4567-e89b-12d3-a456-426614174001"
+  }
+}
+```
+
+### 12. Create Category
+```json
+{
+  "action": "createcategory",
+  "payload": {
+    "name": "Technology",
+    "description": "Posts about software development"
+  }
+}
+```
+
+## Available Actions
+
+### Author Actions
+- `getallauthors` - সব authors পেতে
+- `getauthorbyid` - ID দিয়ে author পেতে  
+- `getauthorbyemail` - Email দিয়ে author পেতে
+- `createauthor` - নতুন author তৈরি করতে
+- `updateauthor` - Author update করতে
+- `deleteauthor` - Author delete করতে
+
+### BlogPost Actions  
+- `getpublishedblogposts` - Published posts পেতে
+- `getblogpostsbycategory` - Category অনুযায়ী posts পেতে
+- `getbyauthor` - Author অনুযায়ী posts পেতে
+- `createblogpost` - নতুন blog post তৈরি করতে
+- `publishblogpost` - Blog post publish করতে
+
+### Category Actions
+- `getallcategories` - সব categories পেতে
+- `createcategory` - নতুন category তৈরি করতে
 
 ## Response Format
 ```json
 {
-  "success": true,
-  "result": { /* your data */ },
-  "operationType": "command",
-  "entityType": "author", 
-  "action": "create",
-  "timestamp": "2024-01-01T00:00:00Z"
+  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "bio": "Software Developer",
+  "fullName": "John Doe",
+  "createdAt": "2024-01-01T00:00:00Z",
+  "updatedAt": "2024-01-01T00:00:00Z",
+  "postCount": 0
 }
 ```
 
 ## Error Response
 ```json
 {
-  "success": false,
-  "error": "Error message",
-  "operationType": "command",
-  "entityType": "author",
-  "action": "create", 
-  "timestamp": "2024-01-01T00:00:00Z"
+  "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "detail": "Handler type 'GetByAuthorQuery' not found. Available actions: getbyauthor, getauthorbyid, getauthorbyemail, getallauthors, getblogpostsbycategory, getpublishedblogposts, getallcategories, createauthor, updateauthor, deleteauthor, createblogpost, publishblogpost, createcategory"
 }
-```
-
-## Discovery Endpoint
-`GET /api` দিয়ে সব available operations দেখতে পারবেন:
-
-```bash
-curl -X GET https://your-api-url/api
 ```
 
 ## Test করার জন্য
 ```bash
-# Discover operations
-curl -X GET http://localhost:5000/api
-
 # Create an author
 curl -X POST http://localhost:5000/api \
   -H "Content-Type: application/json" \
   -d '{
-    "operationType": "command",
-    "entityType": "author", 
-    "action": "create",
+    "action": "createauthor",
     "payload": {
       "firstName": "John",
       "lastName": "Doe",
@@ -192,11 +231,30 @@ curl -X POST http://localhost:5000/api \
       "bio": "Software Developer"
     }
   }'
+
+# Get all authors
+curl -X POST http://localhost:5000/api \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "getallauthors",
+    "payload": {}
+  }'
+
+# Get posts by author (your example)
+curl -X POST http://localhost:5000/api \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "getbyauthor",
+    "payload": {
+      "authorId": "123e4567-e89b-12d3-a456-426614174000"
+    }
+  }'
 ```
 
-## Benefits of Single Endpoint
-✅ **Simple**: শুধু একটা endpoint মনে রাখলেই হবে  
-✅ **Flexible**: যেকোনো operation dynamically করা যায়  
-✅ **Consistent**: সব request একই format এ  
-✅ **Discoverable**: GET /api দিয়ে সব operations দেখা যায়  
-✅ **Maintainable**: নতুন features যোগ করা সহজ
+## Benefits of Simplified Single Endpoint
+✅ **Super Simple**: শুধু `action` field যথেষ্ট!  
+✅ **No More Complex Structure**: `operationType` আর `entityType` এর ঝামেলা নেই  
+✅ **Intuitive**: Action name দেখেই বুঝা যায় কি হবে  
+✅ **Dynamic**: API automatically সব detect করে  
+✅ **Flexible**: নতুন actions সহজেই add করা যায়  
+✅ **Developer Friendly**: কম টাইপিং, কম error
