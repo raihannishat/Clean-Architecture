@@ -1,0 +1,12 @@
+/workspace/src/BlogSite.Domain/bin/Debug/net8.0/BlogSite.Domain.deps.json
+/workspace/src/BlogSite.Domain/bin/Debug/net8.0/BlogSite.Domain.dll
+/workspace/src/BlogSite.Domain/bin/Debug/net8.0/BlogSite.Domain.pdb
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/BlogSite.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/BlogSite.Domain.AssemblyInfoInputs.cache
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/BlogSite.Domain.AssemblyInfo.cs
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/BlogSite.Domain.csproj.CoreCompileInputs.cache
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/BlogSite.Domain.sourcelink.json
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/BlogSite.Domain.dll
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/refint/BlogSite.Domain.dll
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/BlogSite.Domain.pdb
+/workspace/src/BlogSite.Domain/obj/Debug/net8.0/ref/BlogSite.Domain.dll
