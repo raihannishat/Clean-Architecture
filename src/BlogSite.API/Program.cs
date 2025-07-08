@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using System.Reflection;
 using BlogSite.API.Endpoints;
+using BlogSite.Application.Dispatcher;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,9 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(BlogSite.Application.Commands.Authors.CreateAuthorCommand).Assembly);
 });
+
+// Register Dispatcher Pattern services
+builder.Services.AddDispatcher();
 
 // Register services (keeping for backward compatibility)
 builder.Services.AddScoped<IBlogPostService, BlogPostService>();
@@ -98,6 +102,9 @@ app.MapBlogPostEndpoints();
 app.MapCategoryEndpoints();
 app.MapCommentEndpoints();
 
+// Map dispatcher endpoint for dynamic dispatching
+app.MapDispatcherEndpoints();
+
 // Create database and apply migrations if needed
 using (var scope = app.Services.CreateScope())
 {
@@ -112,5 +119,8 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "An error occurred while creating/seeding the database.");
     }
 }
+
+// Register all operations in the dispatcher
+app.Services.RegisterAllOperations();
 
 app.Run();
