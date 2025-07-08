@@ -6,6 +6,7 @@ using BlogSite.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using System.Reflection;
+using BlogSite.API.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,8 +35,8 @@ builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 
-// Add controllers
-builder.Services.AddControllers();
+// Add authorization services (required for UseAuthorization)
+builder.Services.AddAuthorization();
 
 // Configure API documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -45,7 +46,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "BlogSite API",
         Version = "v1",
-        Description = "A comprehensive blog management API built with ASP.NET Core 8.0 following clean architecture principles.",
+        Description = "A comprehensive blog management API built with ASP.NET Core 8.0 following clean architecture principles using Minimal APIs.",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
             Name = "BlogSite Team"
@@ -91,7 +92,11 @@ app.UseCors("BlogSitePolicy");
 
 app.UseAuthorization();
 
-app.MapControllers();
+// Map minimal API endpoints
+app.MapAuthorEndpoints();
+app.MapBlogPostEndpoints();
+app.MapCategoryEndpoints();
+app.MapCommentEndpoints();
 
 // Create database and apply migrations if needed
 using (var scope = app.Services.CreateScope())
