@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using System.Collections.Concurrent;
 
 namespace BlogSite.Application.Services;
 
@@ -7,27 +8,89 @@ public interface IPluralizationService
     string Pluralize(string word);
     string Singularize(string word);
     bool IsPlural(string word);
+    void AddIrregularPlural(string singular, string plural);
+    void RemoveIrregularPlural(string singular);
+    void ClearIrregularPlurals();
+    IReadOnlyDictionary<string, string> GetIrregularPlurals();
 }
 
 public class PluralizationService : IPluralizationService
 {
-    private readonly Dictionary<string, string> _irregularPlurals = new()
-    {
-        { "person", "people" },
-        { "child", "children" },
-        { "foot", "feet" },
-        { "tooth", "teeth" },
-        { "mouse", "mice" },
-        { "man", "men" },
-        { "woman", "women" }
-    };
-
-    private readonly Dictionary<string, string> _irregularSingulars;
+    private readonly ConcurrentDictionary<string, string> _irregularPlurals;
+    private readonly ConcurrentDictionary<string, string> _irregularSingulars;
+    private readonly object _lock = new object();
 
     public PluralizationService()
     {
-        // Create reverse mapping for singularization
-        _irregularSingulars = _irregularPlurals.ToDictionary(x => x.Value, x => x.Key);
+        _irregularPlurals = new ConcurrentDictionary<string, string>();
+        _irregularSingulars = new ConcurrentDictionary<string, string>();
+        
+        // Initialize with default irregular plurals
+        InitializeDefaultIrregularPlurals();
+    }
+
+    private void InitializeDefaultIrregularPlurals()
+    {
+        var defaultPlurals = new Dictionary<string, string>
+        {
+            { "person", "people" },
+            { "child", "children" },
+            { "foot", "feet" },
+            { "tooth", "teeth" },
+            { "mouse", "mice" },
+            { "man", "men" },
+            { "woman", "women" }
+        };
+
+        foreach (var kvp in defaultPlurals)
+        {
+            AddIrregularPlural(kvp.Key, kvp.Value);
+        }
+    }
+
+    public void AddIrregularPlural(string singular, string plural)
+    {
+        if (string.IsNullOrWhiteSpace(singular) || string.IsNullOrWhiteSpace(plural))
+            throw new ArgumentException("Singular and plural forms cannot be null or empty");
+
+        lock (_lock)
+        {
+            var singularLower = singular.ToLowerInvariant();
+            var pluralLower = plural.ToLowerInvariant();
+            
+            _irregularPlurals.AddOrUpdate(singularLower, pluralLower, (key, oldValue) => pluralLower);
+            _irregularSingulars.AddOrUpdate(pluralLower, singularLower, (key, oldValue) => singularLower);
+        }
+    }
+
+    public void RemoveIrregularPlural(string singular)
+    {
+        if (string.IsNullOrWhiteSpace(singular))
+            return;
+
+        lock (_lock)
+        {
+            var singularLower = singular.ToLowerInvariant();
+            
+            if (_irregularPlurals.TryRemove(singularLower, out var plural))
+            {
+                _irregularSingulars.TryRemove(plural, out _);
+            }
+        }
+    }
+
+    public void ClearIrregularPlurals()
+    {
+        lock (_lock)
+        {
+            _irregularPlurals.Clear();
+            _irregularSingulars.Clear();
+        }
+    }
+
+    public IReadOnlyDictionary<string, string> GetIrregularPlurals()
+    {
+        return new Dictionary<string, string>(_irregularPlurals);
     }
 
     public string Pluralize(string word)
