@@ -189,54 +189,81 @@ public class RequestTypeRegistry : IRequestTypeRegistry
     }
 
     /// <summary>
-    /// Gets known entities from EntityDiscoveryService or discovers them dynamically
+    /// Gets known entities from EntityDiscoveryService using multiple discovery strategies
     /// </summary>
     private HashSet<string> GetKnownEntities()
     {
-        // Try to get entities from EntityDiscoveryService if available
+        var entities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        // Primary: Use EntityDiscoveryService if available
         if (_entityDiscoveryService != null)
         {
             try
             {
                 var discoveredEntities = _entityDiscoveryService.GetEntityNames();
-                if (discoveredEntities.Any())
+                entities.UnionWith(discoveredEntities);
+                
+                // Also trigger async discovery for future requests
+                _ = Task.Run(async () => await _entityDiscoveryService.DiscoverEntitiesFromRequestTypesAsync());
+            }
+            catch
+            {
+                // Continue with fallback strategies
+            }
+        }
+
+        // Secondary: Discover from existing command/query types in current assemblies
+        DiscoverEntitiesFromAssemblies(entities);
+        
+        // Tertiary: Use configured fallback entities only if absolutely nothing found
+        if (!entities.Any() && _entityDiscoveryOptions.FallbackEntities.Any())
+        {
+            entities.UnionWith(_entityDiscoveryOptions.FallbackEntities);
+            
+            // Register discovered fallback entities for future use
+            if (_entityDiscoveryService != null)
+            {
+                foreach (var fallbackEntity in _entityDiscoveryOptions.FallbackEntities)
                 {
-                    return new HashSet<string>(discoveredEntities, StringComparer.OrdinalIgnoreCase);
+                    _entityDiscoveryService.RegisterEntity(fallbackEntity);
+                }
+            }
+        }
+
+        return entities;
+    }
+
+    /// <summary>
+    /// Discovers entities from assemblies by analyzing request type patterns
+    /// </summary>
+    private void DiscoverEntitiesFromAssemblies(HashSet<string> entities)
+    {
+        foreach (var assembly in _assemblies)
+        {
+            try
+            {
+                var commandQueryTypes = assembly.GetTypes()
+                    .Where(t => IsValidRequestType(t) && 
+                              (t.Name.EndsWith("Command") || t.Name.EndsWith("Query")))
+                    .ToList();
+
+                foreach (var type in commandQueryTypes)
+                {
+                    var entity = ExtractEntityFromTypeName(type.Name);
+                    if (!string.IsNullOrEmpty(entity))
+                    {
+                        entities.Add(entity);
+                        
+                        // Auto-register discovered entities
+                        _entityDiscoveryService?.RegisterEntity(entity);
+                    }
                 }
             }
             catch
             {
-                // Fall back to dynamic discovery if service fails
+                // Continue with other assemblies
             }
         }
-
-        // Fallback: Discover entities from existing command/query types
-        var entities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        
-        foreach (var assembly in _assemblies)
-        {
-            var commandQueryTypes = assembly.GetTypes()
-                .Where(t => IsValidRequestType(t) && 
-                          (t.Name.EndsWith("Command") || t.Name.EndsWith("Query")))
-                .Select(t => t.Name);
-
-            foreach (var typeName in commandQueryTypes)
-            {
-                var entity = ExtractEntityFromTypeName(typeName);
-                if (!string.IsNullOrEmpty(entity))
-                {
-                    entities.Add(entity);
-                }
-            }
-        }
-
-        // Add configured fallback entities if none discovered
-        if (!entities.Any() && _entityDiscoveryOptions.FallbackEntities.Any())
-        {
-            entities.UnionWith(_entityDiscoveryOptions.FallbackEntities);
-        }
-
-        return entities;
     }
 
     /// <summary>
