@@ -4,6 +4,7 @@ using BlogSite.Application.Core.Dynamic;
 using BlogSite.Application.Interfaces;
 using BlogSite.Application.Mappings;
 using BlogSite.Application.Services;
+using BlogSite.Application.Configuration;
 using BlogSite.Infrastructure.Data;
 using BlogSite.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,9 @@ builder.Services.AddDynamicDispatcher();
 
 // Register services dynamically
 RegisterServicesDynamically(builder.Services);
+
+// Configure application settings
+ConfigureApplicationSettings(builder.Services, builder.Configuration);
 
 // Add HTTP context accessor
 builder.Services.AddHttpContextAccessor();
@@ -208,6 +212,13 @@ static void ConfigureCorsDynamically(IServiceCollection services)
                   .AllowAnyHeader();
         });
     });
+}
+
+static void ConfigureApplicationSettings(IServiceCollection services, IConfiguration configuration)
+{
+    // Configure entity discovery options
+    services.Configure<EntityDiscoveryOptions>(
+        configuration.GetSection(EntityDiscoveryOptions.SectionName));
 }
 
 static string? FindDatabaseFile()

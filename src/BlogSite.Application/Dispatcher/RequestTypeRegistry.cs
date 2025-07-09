@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using MediatR;
+using Microsoft.Extensions.Options;
 using BlogSite.Application.Services;
+using BlogSite.Application.Configuration;
 
 namespace BlogSite.Application.Dispatcher;
 
@@ -14,10 +16,12 @@ public class RequestTypeRegistry : IRequestTypeRegistry
     private readonly ConcurrentDictionary<string, OperationMetadata> _operationCache = new();
     private readonly Assembly[] _assemblies;
     private readonly IEntityDiscoveryService? _entityDiscoveryService;
+    private readonly EntityDiscoveryOptions _entityDiscoveryOptions;
 
-    public RequestTypeRegistry(IEntityDiscoveryService? entityDiscoveryService = null)
+    public RequestTypeRegistry(IEntityDiscoveryService? entityDiscoveryService = null, IOptions<EntityDiscoveryOptions>? entityDiscoveryOptions = null)
     {
         _entityDiscoveryService = entityDiscoveryService;
+        _entityDiscoveryOptions = entityDiscoveryOptions?.Value ?? new EntityDiscoveryOptions();
         
         // Load assemblies that might contain commands and queries
         _assemblies = new[]
@@ -226,10 +230,10 @@ public class RequestTypeRegistry : IRequestTypeRegistry
             }
         }
 
-        // Add common entity patterns if none discovered
-        if (!entities.Any())
+        // Add configured fallback entities if none discovered
+        if (!entities.Any() && _entityDiscoveryOptions.FallbackEntities.Any())
         {
-            entities.UnionWith(new[] { "Author", "BlogPost", "Category", "Comment", "User", "Tag" });
+            entities.UnionWith(_entityDiscoveryOptions.FallbackEntities);
         }
 
         return entities;
