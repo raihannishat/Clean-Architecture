@@ -92,46 +92,6 @@ This project follows **Clean Architecture** principles with clear separation of 
 
 The database will be automatically created and seeded with sample data on first run.
 
-## 📋 API Endpoints
-
-### 👤 Authors (`/api/authors`)
-- `GET /api/authors` - Get all authors
-- `GET /api/authors/{id}` - Get author by ID
-- `GET /api/authors/email/{email}` - Get author by email
-- `POST /api/authors` - Create new author
-- `PUT /api/authors/{id}` - Update author
-- `DELETE /api/authors/{id}` - Delete author
-
-### 🏷️ Categories (`/api/categories`)
-- `GET /api/categories` - Get all categories
-- `GET /api/categories/{id}` - Get category by ID
-- `GET /api/categories/name/{name}` - Get category by name
-- `POST /api/categories` - Create new category
-- `PUT /api/categories/{id}` - Update category
-- `DELETE /api/categories/{id}` - Delete category
-
-### 📝 Blog Posts (`/api/blogposts`)
-- `GET /api/blogposts` - Get all blog posts
-- `GET /api/blogposts/published` - Get published posts only
-- `GET /api/blogposts/{id}` - Get post by ID
-- `GET /api/blogposts/author/{authorId}` - Get posts by author
-- `GET /api/blogposts/category/{categoryId}` - Get posts by category
-- `POST /api/blogposts` - Create new post
-- `PUT /api/blogposts/{id}` - Update post
-- `DELETE /api/blogposts/{id}` - Delete post
-- `POST /api/blogposts/{id}/publish` - Publish post
-- `POST /api/blogposts/{id}/unpublish` - Unpublish post
-
-### 💬 Comments (`/api/comments`)
-- `GET /api/comments` - Get all comments
-- `GET /api/comments/{id}` - Get comment by ID
-- `GET /api/comments/post/{blogPostId}` - Get comments for a post
-- `GET /api/comments/post/{blogPostId}/approved` - Get approved comments
-- `POST /api/comments` - Create new comment
-- `PUT /api/comments/{id}` - Update comment
-- `DELETE /api/comments/{id}` - Delete comment
-- `POST /api/comments/{id}/approve` - Approve comment
-- `POST /api/comments/{id}/reject` - Reject comment
 
 ## 🎯 Business Rules
 
