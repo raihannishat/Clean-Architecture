@@ -48,13 +48,7 @@ public class Dispatcher
 
     private string ParseActionDynamically(string normalizedAction, string suffix)
     {
-        // Handle special patterns first
-        if (HandleSpecialPatterns(normalizedAction, suffix, out string? specialResult))
-        {
-            return specialResult;
-        }
-
-        // Handle "get by entity" patterns (e.g., "getbyauthor")
+        // Handle "get by entity" patterns (e.g., "getbyauthor" -> "GetByAuthor")
         if (normalizedAction.StartsWith("getby"))
         {
             var entityPart = normalizedAction.Substring(5); // Remove "getby"
@@ -94,39 +88,11 @@ public class Dispatcher
         return $"{ToPascalCase(normalizedAction)}{suffix}";
     }
 
-    private bool HandleSpecialPatterns(string normalizedAction, string suffix, out string? result)
-    {
-        result = null;
-
-        // Special cases that don't follow standard patterns
-        var specialMappings = new Dictionary<string, string>
-        {
-            { "getbyauthor", "GetBlogPostsByAuthor" },
-        };
-
-        if (specialMappings.TryGetValue(normalizedAction, out var mapping))
-        {
-            result = $"{mapping}{suffix}";
-            return true;
-        }
-
-        return false;
-    }
-
     private string HandleGetByEntityPattern(string entityPart, string suffix)
     {
-        // For patterns like "getbyauthor" -> "GetBlogPostsByAuthor"
-        var entityName = ToPascalCase(entityPart);
-        
-        // Determine what entity type we're getting based on the "by" entity
-        string targetEntity = entityPart.ToLower() switch
-        {
-            "author" => "BlogPosts",
-            "category" => "BlogPosts", 
-            _ => entityName
-        };
-
-        return $"Get{targetEntity}By{entityName}{suffix}";
+        // For patterns like "getbyauthor" -> "GetByAuthorQuery"
+        var entityName = GetEntityNameFromSingularOrPlural(entityPart);
+        return $"GetBy{ToPascalCase(entityName)}{suffix}";
     }
 
     private string HandleGetEntityByFieldPattern(string normalizedAction, string suffix)
@@ -152,7 +118,7 @@ public class Dispatcher
         // For patterns like "getpublishedblogposts" -> "GetPublishedBlogPosts"
         var actionPart = normalizedAction.Substring(3); // Remove "get"
         
-        // Check for known patterns
+        // Check for known patterns dynamically
         if (actionPart.Contains("published"))
         {
             var entityPart = actionPart.Replace("published", "");
@@ -160,7 +126,19 @@ public class Dispatcher
             return $"GetPublished{ToPascalCase(entityName)}{suffix}";
         }
 
-        // Default handling
+        // Handle other modifiers dynamically
+        var modifierPatterns = new[] { "active", "inactive", "featured", "recent", "popular", "archived" };
+        foreach (var modifier in modifierPatterns)
+        {
+            if (actionPart.Contains(modifier))
+            {
+                var entityPart = actionPart.Replace(modifier, "");
+                var entityName = GetEntityNameFromPlural(entityPart);
+                return $"Get{ToPascalCase(modifier)}{ToPascalCase(entityName)}{suffix}";
+            }
+        }
+
+        // Default handling - try to parse as compound words
         var parsed = ParseCamelCaseWords(actionPart);
         return $"Get{parsed}{suffix}";
     }
@@ -191,6 +169,21 @@ public class Dispatcher
             command = "Publish";
             entityPart = normalizedAction.Substring(7);
         }
+        else if (normalizedAction.StartsWith("archive"))
+        {
+            command = "Archive";
+            entityPart = normalizedAction.Substring(7);
+        }
+        else if (normalizedAction.StartsWith("activate"))
+        {
+            command = "Activate";
+            entityPart = normalizedAction.Substring(8);
+        }
+        else if (normalizedAction.StartsWith("deactivate"))
+        {
+            command = "Deactivate";
+            entityPart = normalizedAction.Substring(10);
+        }
 
         var entityName = GetEntityNameFromSingularOrPlural(entityPart);
         return $"{command}{ToPascalCase(entityName)}{suffix}";
@@ -214,8 +207,6 @@ public class Dispatcher
         // Check if it might be plural
         return GetEntityNameFromPlural(entityPart);
     }
-
-
 
     private string ParseCamelCaseWords(string input)
     {
