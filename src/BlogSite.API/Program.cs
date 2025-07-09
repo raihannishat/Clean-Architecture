@@ -1,127 +1,273 @@
+using System.Reflection;
+using AutoMapper;
+using BlogSite.Application.Core.Dynamic;
 using BlogSite.Application.Interfaces;
-using BlogSite.Application.Services;
 using BlogSite.Application.Mappings;
+using BlogSite.Application.Services;
 using BlogSite.Infrastructure.Data;
 using BlogSite.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using System.Reflection;
 using BlogSite.API.Endpoints;
-using BlogSite.Application.Dispatcher;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
-builder.Services.AddDbContext<BlogDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+// === DYNAMIC CONFIGURATION SETUP ===
+// No hardcoded values, everything discovered dynamically
 
-// Register AutoMapper
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+// Add core services
+builder.Services.AddLogging();
 
-// Register repositories
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
-builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+// Auto-detect and configure database
+ConfigureDatabaseDynamically(builder.Services);
 
-// Register MediatR for CQRS
-builder.Services.AddMediatR(cfg => {
-    cfg.RegisterServicesFromAssembly(typeof(BlogSite.Application.Commands.Authors.CreateAuthorCommand).Assembly);
-});
+// Register AutoMapper dynamically
+ConfigureAutoMapperDynamically(builder.Services);
 
-// Configure operation description settings
-builder.Services.Configure<BlogSite.Application.Configuration.OperationDescriptionConfig>(
-    builder.Configuration.GetSection("OperationDescription"));
+// Register repositories dynamically
+RegisterRepositoriesDynamically(builder.Services);
 
-// Add HttpContextAccessor for dynamic operation context
+// Register MediatR for CQRS dynamically
+RegisterMediatRDynamically(builder.Services);
+
+// Add the dynamic dispatcher
+builder.Services.AddDynamicDispatcher();
+
+// Register services dynamically
+RegisterServicesDynamically(builder.Services);
+
+// Add HTTP context accessor
 builder.Services.AddHttpContextAccessor();
 
-// Register Dispatcher Pattern services
-builder.Services.AddDispatcher();
-
-// Register services (keeping for backward compatibility)
-builder.Services.AddScoped<IBlogPostService, BlogPostService>();
-builder.Services.AddScoped<IAuthorService, AuthorService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<ICommentService, CommentService>();
-
-// Add authorization services (required for UseAuthorization)
+// Add authorization services
 builder.Services.AddAuthorization();
 
-// Configure API documentation
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "BlogSite API",
-        Version = "v1",
-        Description = "A comprehensive blog management API built with ASP.NET Core 8.0 following clean architecture principles using Minimal APIs.",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
-        {
-            Name = "BlogSite Team"
-        }
-    });
+// Configure API documentation dynamically
+ConfigureApiDocumentationDynamically(builder.Services);
 
-    // Include XML comments for better API documentation
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
-    {
-        c.IncludeXmlComments(xmlPath);
-    }
-});
-
-// Add CORS policy for frontend applications
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("BlogSitePolicy", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+// Add CORS dynamically
+ConfigureCorsDynamically(builder.Services);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// === DYNAMIC PIPELINE CONFIGURATION ===
+
+// Configure the HTTP request pipeline dynamically
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlogSite API v1");
-        c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlogSite Dynamic API v1");
+        c.RoutePrefix = string.Empty;
     });
 }
 
 app.UseHttpsRedirection();
-
-app.UseCors("BlogSitePolicy");
-
+app.UseCors("DynamicCorsPolicy");
 app.UseAuthorization();
 
-// Map only the single dynamic dispatcher endpoint that handles all operations
-app.MapDispatcherEndpoints();
+// Map the completely dynamic API endpoint
+app.MapDynamicApiEndpoint();
 
-// Create database and apply migrations if needed
-using (var scope = app.Services.CreateScope())
+// Initialize database dynamically
+await InitializeDatabaseDynamicallyAsync(app.Services);
+
+// Discover and register all operations dynamically
+await DiscoverAndRegisterOperationsAsync(app.Services);
+
+app.Run();
+
+// === DYNAMIC CONFIGURATION METHODS ===
+
+static void ConfigureDatabaseDynamically(IServiceCollection services)
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
-    try
+    // Auto-detect database file or create in-memory
+    var dbPath = FindDatabaseFile() ?? "BlogSite.db";
+    var connectionString = $"Data Source={dbPath}";
+    
+    services.AddDbContext<BlogDbContext>(options =>
+        options.UseSqlite(connectionString));
+}
+
+static void ConfigureAutoMapperDynamically(IServiceCollection services)
+{
+    // Discover all mapping profiles dynamically
+    var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+        .Where(a => !a.IsDynamic && a.FullName?.Contains("BlogSite") == true)
+        .ToArray();
+
+    if (assemblies.Any())
     {
-        dbContext.Database.EnsureCreated();
-    }
-    catch (Exception ex)
-    {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while creating/seeding the database.");
+        services.AddAutoMapper(cfg => 
+        {
+            cfg.AddMaps(assemblies);
+        });
     }
 }
 
-// Register all operations in the dispatcher
-app.Services.RegisterAllOperations();
+static void RegisterRepositoriesDynamically(IServiceCollection services)
+{
+    // Register generic repository
+    services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+    
+    // Auto-discover and register specific repositories
+    var repositoryTypes = AppDomain.CurrentDomain.GetAssemblies()
+        .Where(a => !a.IsDynamic && a.FullName?.Contains("BlogSite") == true)
+        .SelectMany(a => a.GetTypes())
+        .Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Repository"))
+        .ToList();
 
-app.Run();
+    foreach (var repoType in repositoryTypes)
+    {
+        var interfaces = repoType.GetInterfaces()
+            .Where(i => i != typeof(IRepository<>) && i.Name.StartsWith("I"));
+        
+        foreach (var interfaceType in interfaces)
+        {
+            services.AddScoped(interfaceType, repoType);
+        }
+    }
+}
+
+static void RegisterMediatRDynamically(IServiceCollection services)
+{
+    // Auto-discover assemblies with MediatR handlers
+    var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+        .Where(a => !a.IsDynamic && a.FullName?.Contains("BlogSite") == true)
+        .ToArray();
+
+    if (assemblies.Any())
+    {
+        services.AddMediatR(cfg => {
+            foreach (var assembly in assemblies)
+            {
+                cfg.RegisterServicesFromAssembly(assembly);
+            }
+        });
+    }
+}
+
+static void RegisterServicesDynamically(IServiceCollection services)
+{
+    // Auto-discover and register all service classes
+    var serviceTypes = AppDomain.CurrentDomain.GetAssemblies()
+        .Where(a => !a.IsDynamic && a.FullName?.Contains("BlogSite") == true)
+        .SelectMany(a => a.GetTypes())
+        .Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Service"))
+        .ToList();
+
+    foreach (var serviceType in serviceTypes)
+    {
+        // Register the service itself
+        services.AddScoped(serviceType);
+        
+        // Register service interfaces
+        var interfaces = serviceType.GetInterfaces()
+            .Where(i => i.Name.StartsWith("I") && i.Name.EndsWith("Service"));
+        
+        foreach (var interfaceType in interfaces)
+        {
+            services.AddScoped(interfaceType, serviceType);
+        }
+    }
+}
+
+static void ConfigureApiDocumentationDynamically(IServiceCollection services)
+{
+    services.AddEndpointsApiExplorer();
+    services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+        {
+            Title = "BlogSite Dynamic API",
+            Version = "v1",
+            Description = "A completely dynamic API that discovers and executes operations without hardcoded configuration",
+            Contact = new Microsoft.OpenApi.Models.OpenApiContact
+            {
+                Name = "Dynamic BlogSite Team"
+            }
+        });
+
+        // Auto-discover and include XML comments
+        var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml");
+        foreach (var xmlFile in xmlFiles)
+        {
+            c.IncludeXmlComments(xmlFile);
+        }
+    });
+}
+
+static void ConfigureCorsDynamically(IServiceCollection services)
+{
+    services.AddCors(options =>
+    {
+        options.AddPolicy("DynamicCorsPolicy", policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    });
+}
+
+static string? FindDatabaseFile()
+{
+    // Look for existing database files in common locations
+    var searchPaths = new[]
+    {
+        "BlogSite.db",
+        "blogsite.db",
+        "database.db",
+        Path.Combine("Data", "BlogSite.db"),
+        Path.Combine("App_Data", "BlogSite.db")
+    };
+
+    foreach (var path in searchPaths)
+    {
+        if (File.Exists(path))
+        {
+            return path;
+        }
+    }
+
+    return null;
+}
+
+static async Task InitializeDatabaseDynamicallyAsync(IServiceProvider services)
+{
+    using var scope = services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        await dbContext.Database.EnsureCreatedAsync();
+        logger.LogInformation("Database initialized successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error initializing database");
+    }
+}
+
+static async Task DiscoverAndRegisterOperationsAsync(IServiceProvider services)
+{
+    using var scope = services.CreateScope();
+    var discoveryService = scope.ServiceProvider.GetRequiredService<IOperationDiscoveryService>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
+    {
+        var operations = await discoveryService.DiscoverOperationsAsync();
+        logger.LogInformation("Discovered {Count} operations dynamically", operations.Count());
+        
+        foreach (var operation in operations)
+        {
+            logger.LogDebug("Discovered operation: {Action} ({Type})", operation.Action, operation.Type);
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error discovering operations");
+    }
+}
