@@ -1,13 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using MediatR;
-using BlogSite.Application.Commands.Authors;
-using BlogSite.Application.Commands.BlogPosts;
-using BlogSite.Application.Commands.Categories;
-using BlogSite.Application.Queries.Authors;
-using BlogSite.Application.Queries.BlogPosts;
-using BlogSite.Application.Queries.Categories;
-using BlogSite.Application.DTOs;
 using BlogSite.Application.Services;
 
 namespace BlogSite.Application.Dispatcher;
@@ -27,55 +20,27 @@ public static class DispatcherExtensions
         return services;
     }
 
+    /// <summary>
+    /// Automatically discovers and registers all operations from the current assemblies.
+    /// No manual registration needed for new entities.
+    /// </summary>
     public static IServiceProvider RegisterAllOperations(this IServiceProvider serviceProvider)
     {
+        // The RequestTypeRegistry already automatically discovers operations through reflection
+        // No manual registration is needed - this method is kept for backward compatibility
+        // and can be used to warm up the cache if needed
+        
         var registry = serviceProvider.GetRequiredService<IRequestTypeRegistry>();
-
-        // Register Author operations
-        RegisterAuthorOperations(registry);
-
-        // Register BlogPost operations
-        RegisterBlogPostOperations(registry);
-
-        // Register Category operations
-        RegisterCategoryOperations(registry);
-
+        
+        // Optionally warm up the cache by calling GetAllOperations
+        _ = registry.GetAllOperations().ToList();
+        
         return serviceProvider;
     }
 
-    private static void RegisterAuthorOperations(IRequestTypeRegistry registry)
-    {
-        // Author Commands
-        registry.RegisterOperation("Command", "Author", "Create", typeof(CreateAuthorCommand), typeof(AuthorDto));
-        registry.RegisterOperation("Command", "Author", "Update", typeof(UpdateAuthorCommand), typeof(AuthorDto));
-        registry.RegisterOperation("Command", "Author", "Delete", typeof(DeleteAuthorCommand), typeof(bool));
-
-        // Author Queries
-        registry.RegisterOperation("Query", "Author", "GetAll", typeof(GetAllAuthorsQuery), typeof(IEnumerable<AuthorDto>));
-        registry.RegisterOperation("Query", "Author", "GetById", typeof(GetAuthorByIdQuery), typeof(AuthorDto));
-        registry.RegisterOperation("Query", "Author", "GetByEmail", typeof(GetAuthorByEmailQuery), typeof(AuthorDto));
-    }
-
-    private static void RegisterBlogPostOperations(IRequestTypeRegistry registry)
-    {
-        // BlogPost Commands
-        registry.RegisterOperation("Command", "BlogPost", "Create", typeof(CreateBlogPostCommand), typeof(BlogPostDto));
-        registry.RegisterOperation("Command", "BlogPost", "Publish", typeof(PublishBlogPostCommand), typeof(BlogPostDto));
-
-        // BlogPost Queries
-        registry.RegisterOperation("Query", "BlogPost", "GetPublished", typeof(GetPublishedBlogPostsQuery), typeof(IEnumerable<BlogPostDto>));
-        registry.RegisterOperation("Query", "BlogPost", "GetByCategory", typeof(GetBlogPostsByCategoryQuery), typeof(IEnumerable<BlogPostDto>));
-    }
-
-    private static void RegisterCategoryOperations(IRequestTypeRegistry registry)
-    {
-        // Category Commands
-        registry.RegisterOperation("Command", "Category", "Create", typeof(CreateCategoryCommand), typeof(CategoryDto));
-
-        // Category Queries
-        registry.RegisterOperation("Query", "Category", "GetAll", typeof(GetAllCategoriesQuery), typeof(IEnumerable<CategoryDto>));
-    }
-
+    /// <summary>
+    /// Gets dynamic operation summaries for all discovered operations
+    /// </summary>
     public static IEnumerable<OperationSummary> GetOperationSummaries(this IRequestTypeRegistry registry)
     {
         return registry.GetAllOperations().Select(op => new OperationSummary(
@@ -88,28 +53,86 @@ public static class DispatcherExtensions
         ));
     }
 
+    /// <summary>
+    /// Gets all available entity types by discovering them from existing operations
+    /// </summary>
+    public static IEnumerable<string> GetAvailableEntityTypes(this IRequestTypeRegistry registry)
+    {
+        return registry.GetAllOperations()
+            .Select(op => op.EntityType)
+            .Distinct()
+            .OrderBy(x => x);
+    }
+
+    /// <summary>
+    /// Gets all available actions for a specific entity type
+    /// </summary>
+    public static IEnumerable<string> GetAvailableActions(this IRequestTypeRegistry registry, string entityType)
+    {
+        return registry.GetAllOperations()
+            .Where(op => op.EntityType.Equals(entityType, StringComparison.OrdinalIgnoreCase))
+            .Select(op => op.Action)
+            .Distinct()
+            .OrderBy(x => x);
+    }
+
+    /// <summary>
+    /// Gets all available operations grouped by entity type
+    /// </summary>
+    public static Dictionary<string, List<OperationSummary>> GetOperationsByEntity(this IRequestTypeRegistry registry)
+    {
+        return registry.GetOperationSummaries()
+            .GroupBy(op => op.EntityType)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderBy(op => op.OperationType).ThenBy(op => op.Action).ToList()
+            );
+    }
+
+    /// <summary>
+    /// Generates dynamic operation descriptions based on naming conventions
+    /// </summary>
     private static string GetOperationDescription(string operationType, string entityType, string action)
     {
+        var entityLower = entityType.ToLower();
+        var actionLower = action.ToLower();
+
         return operationType.ToLower() switch
         {
-            "command" => action.ToLower() switch
+            "command" => actionLower switch
             {
-                "create" => $"Creates a new {entityType.ToLower()}",
-                "update" => $"Updates an existing {entityType.ToLower()}",
-                "delete" => $"Deletes a {entityType.ToLower()}",
-                "publish" => $"Publishes a {entityType.ToLower()}",
-                _ => $"Executes {action} command on {entityType.ToLower()}"
+                "create" => $"Creates a new {entityLower}",
+                "update" => $"Updates an existing {entityLower}",
+                "delete" => $"Deletes a {entityLower}",
+                "publish" => $"Publishes a {entityLower}",
+                "archive" => $"Archives a {entityLower}",
+                "activate" => $"Activates a {entityLower}",
+                "deactivate" => $"Deactivates a {entityLower}",
+                "approve" => $"Approves a {entityLower}",
+                "reject" => $"Rejects a {entityLower}",
+                "enable" => $"Enables a {entityLower}",
+                "disable" => $"Disables a {entityLower}",
+                _ => $"Executes {action} command on {entityLower}"
             },
-            "query" => action.ToLower() switch
+            "query" => actionLower switch
             {
-                "getall" => $"Gets all {entityType.ToLower()}s",
-                "getbyid" => $"Gets a {entityType.ToLower()} by ID",
-                "getbyemail" => $"Gets a {entityType.ToLower()} by email",
-                "getpublished" => $"Gets published {entityType.ToLower()}s",
-                "getbycategory" => $"Gets {entityType.ToLower()}s by category",
-                _ => $"Executes {action} query on {entityType.ToLower()}"
+                "getall" => $"Gets all {entityLower}s",
+                "getbyid" => $"Gets a {entityLower} by ID",
+                "getbyemail" => $"Gets a {entityLower} by email",
+                "getbyname" => $"Gets a {entityLower} by name",
+                "getbytitle" => $"Gets a {entityLower} by title",
+                "getbyslug" => $"Gets a {entityLower} by slug",
+                "getpublished" => $"Gets published {entityLower}s",
+                "getactive" => $"Gets active {entityLower}s",
+                "getarchived" => $"Gets archived {entityLower}s",
+                "getbycategory" => $"Gets {entityLower}s by category",
+                "getbyauthor" => $"Gets {entityLower}s by author",
+                "getbyuser" => $"Gets {entityLower}s by user",
+                "getbytag" => $"Gets {entityLower}s by tag",
+                "search" => $"Searches {entityLower}s",
+                _ => $"Executes {action} query on {entityLower}"
             },
-            _ => $"Executes {operationType} {action} on {entityType}"
+            _ => $"Executes {operationType} {action} on {entityLower}"
         };
     }
 }
