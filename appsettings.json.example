@@ -1,0 +1,30 @@
+{
+  "EntityDiscovery": {
+    // ✅ NEW: Fully dynamic entity discovery - no manual maintenance needed!
+    
+    // Enable automatic discovery strategies (all enabled by default)
+    "EnableRequestTypeDiscovery": true,    // Discovers entities from Command/Query patterns
+    "EnableDbContextDiscovery": true,      // Discovers entities from DbContext/DbSet
+    "EnableReflectionDiscovery": true,     // Discovers entities via reflection
+    "EnableEntityCaching": true,           // Cache for performance
+    
+    // ✅ OPTIONAL: FallbackEntities is now optional and rarely needed
+    // The system automatically discovers entities, eliminating manual maintenance
+    // You can remove this entirely or use only for special cases
+    "FallbackEntities": [
+      // Only add entities here if they can't be auto-discovered
+      // Most entities will be discovered automatically!
+    ]
+  },
+  
+  // Example: Your entities will be discovered automatically from:
+  // 1. Classes inheriting from BaseEntity (Author, BlogPost, etc.)
+  // 2. Command/Query type names (GetAuthorQuery → Author)
+  // 3. DbContext DbSet properties (DbSet<BlogPost> → BlogPost)
+  // 4. Runtime usage patterns (system learns as it's used)
+  
+  // Other configuration...
+  "ConnectionStrings": {
+    "DefaultConnection": "your-connection-string"
+  }
+}
