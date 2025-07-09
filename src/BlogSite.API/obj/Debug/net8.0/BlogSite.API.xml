@@ -14,5 +14,30 @@
             Request DTO for the single API endpoint
             </summary>
         </member>
+        <member name="T:BlogSite.API.Endpoints.DynamicApiEndpoint">
+            <summary>
+            Completely dynamic API endpoint using dynamic dispatcher
+            </summary>
+        </member>
+        <member name="T:BlogSite.API.Endpoints.DynamicApiRequest">
+            <summary>
+            Request DTO for the dynamic API endpoint
+            </summary>
+        </member>
+        <member name="P:BlogSite.API.Endpoints.DynamicApiRequest.Action">
+            <summary>
+            The action to execute (operation name)
+            </summary>
+        </member>
+        <member name="P:BlogSite.API.Endpoints.DynamicApiRequest.Payload">
+            <summary>
+            The payload data for the operation
+            </summary>
+        </member>
+        <member name="P:BlogSite.API.Endpoints.DynamicApiRequest.Metadata">
+            <summary>
+            Optional metadata for the request
+            </summary>
+        </member>
     </members>
 </doc>
