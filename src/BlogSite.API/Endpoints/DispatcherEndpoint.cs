@@ -21,14 +21,15 @@ public static class DispatcherEndpoint
 
     private static async Task<IResult> HandleRequest(
         [FromBody] ApiRequest request,
-        Dispatcher dispatcher,
+        IDispatcher dispatcher,
         ILogger<Program> logger)
     {
         try
         {
             logger.LogInformation("Handling request: {Action}", request.Action);
 
-            var result = await dispatcher.DispatchAsync(request.Action, request.Payload);
+            var dispatchRequest = new DispatchRequest("unknown", request.Action, request.Payload);
+            var result = await dispatcher.DispatchAsync(dispatchRequest);
 
             return Results.Ok(result);
         }

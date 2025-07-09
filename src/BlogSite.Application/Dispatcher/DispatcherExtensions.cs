@@ -13,6 +13,9 @@ public static class DispatcherExtensions
         services.AddSingleton<IPluralizationService, PluralizationService>();
         services.AddSingleton<IEntityDiscoveryService, EntityDiscoveryService>();
         
+        // Register operation description generator
+        services.AddSingleton<IOperationDescriptionGenerator, SmartOperationDescriptionGenerator>();
+        
         // Register dispatcher services
         services.AddSingleton<IRequestTypeRegistry, RequestTypeRegistry>();
         services.AddScoped<IDispatcher, Dispatcher>();
@@ -41,7 +44,7 @@ public static class DispatcherExtensions
     /// <summary>
     /// Gets dynamic operation summaries for all discovered operations
     /// </summary>
-    public static IEnumerable<OperationSummary> GetOperationSummaries(this IRequestTypeRegistry registry)
+    public static IEnumerable<OperationSummary> GetOperationSummaries(this IRequestTypeRegistry registry, IOperationDescriptionGenerator descriptionGenerator)
     {
         return registry.GetAllOperations().Select(op => new OperationSummary(
             OperationType: op.OperationType,
@@ -49,7 +52,7 @@ public static class DispatcherExtensions
             Action: op.Action,
             RequestTypeName: op.RequestType.Name,
             ResponseTypeName: op.ResponseType?.Name ?? "void",
-            Description: GetOperationDescription(op.OperationType, op.EntityType, op.Action)
+            Description: descriptionGenerator.GetDescription(op.RequestType, op.OperationType, op.EntityType, op.Action)
         ));
     }
 
@@ -79,9 +82,9 @@ public static class DispatcherExtensions
     /// <summary>
     /// Gets all available operations grouped by entity type
     /// </summary>
-    public static Dictionary<string, List<OperationSummary>> GetOperationsByEntity(this IRequestTypeRegistry registry)
+    public static Dictionary<string, List<OperationSummary>> GetOperationsByEntity(this IRequestTypeRegistry registry, IOperationDescriptionGenerator descriptionGenerator)
     {
-        return registry.GetOperationSummaries()
+        return registry.GetOperationSummaries(descriptionGenerator)
             .GroupBy(op => op.EntityType)
             .ToDictionary(
                 g => g.Key,
@@ -89,52 +92,7 @@ public static class DispatcherExtensions
             );
     }
 
-    /// <summary>
-    /// Generates dynamic operation descriptions based on naming conventions
-    /// </summary>
-    private static string GetOperationDescription(string operationType, string entityType, string action)
-    {
-        var entityLower = entityType.ToLower();
-        var actionLower = action.ToLower();
 
-        return operationType.ToLower() switch
-        {
-            "command" => actionLower switch
-            {
-                "create" => $"Creates a new {entityLower}",
-                "update" => $"Updates an existing {entityLower}",
-                "delete" => $"Deletes a {entityLower}",
-                "publish" => $"Publishes a {entityLower}",
-                "archive" => $"Archives a {entityLower}",
-                "activate" => $"Activates a {entityLower}",
-                "deactivate" => $"Deactivates a {entityLower}",
-                "approve" => $"Approves a {entityLower}",
-                "reject" => $"Rejects a {entityLower}",
-                "enable" => $"Enables a {entityLower}",
-                "disable" => $"Disables a {entityLower}",
-                _ => $"Executes {action} command on {entityLower}"
-            },
-            "query" => actionLower switch
-            {
-                "getall" => $"Gets all {entityLower}s",
-                "getbyid" => $"Gets a {entityLower} by ID",
-                "getbyemail" => $"Gets a {entityLower} by email",
-                "getbyname" => $"Gets a {entityLower} by name",
-                "getbytitle" => $"Gets a {entityLower} by title",
-                "getbyslug" => $"Gets a {entityLower} by slug",
-                "getpublished" => $"Gets published {entityLower}s",
-                "getactive" => $"Gets active {entityLower}s",
-                "getarchived" => $"Gets archived {entityLower}s",
-                "getbycategory" => $"Gets {entityLower}s by category",
-                "getbyauthor" => $"Gets {entityLower}s by author",
-                "getbyuser" => $"Gets {entityLower}s by user",
-                "getbytag" => $"Gets {entityLower}s by tag",
-                "search" => $"Searches {entityLower}s",
-                _ => $"Executes {action} query on {entityLower}"
-            },
-            _ => $"Executes {operationType} {action} on {entityLower}"
-        };
-    }
 }
 
 public record OperationSummary(

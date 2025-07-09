@@ -194,7 +194,7 @@ public class RequestTypeRegistry : IRequestTypeRegistry
         {
             try
             {
-                var discoveredEntities = _entityDiscoveryService.GetAvailableEntities();
+                var discoveredEntities = _entityDiscoveryService.GetEntityNames();
                 if (discoveredEntities.Any())
                 {
                     return new HashSet<string>(discoveredEntities, StringComparer.OrdinalIgnoreCase);

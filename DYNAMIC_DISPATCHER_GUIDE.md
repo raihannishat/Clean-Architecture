@@ -158,14 +158,14 @@ var actions = registry.GetAvailableActions("Product");
 ### Get Operations by Entity
 
 ```csharp
-var operations = registry.GetOperationsByEntity();
+var operations = registry.GetOperationsByEntity(descriptionGenerator);
 // Returns grouped operations for easy API generation
 ```
 
 ### Get Operation Summaries
 
 ```csharp
-var summaries = registry.GetOperationSummaries();
+var summaries = registry.GetOperationSummaries(descriptionGenerator);
 // Returns detailed information about all operations
 ```
 
@@ -179,10 +179,17 @@ Use the dynamic dispatcher in your controllers:
 public class DynamicController : ControllerBase
 {
     private readonly IDispatcher _dispatcher;
+    private readonly IRequestTypeRegistry _registry;
+    private readonly IOperationDescriptionGenerator _descriptionGenerator;
 
-    public DynamicController(IDispatcher dispatcher)
+    public DynamicController(
+        IDispatcher dispatcher,
+        IRequestTypeRegistry registry,
+        IOperationDescriptionGenerator descriptionGenerator)
     {
         _dispatcher = dispatcher;
+        _registry = registry;
+        _descriptionGenerator = descriptionGenerator;
     }
 
     [HttpPost("{entityType}/{action}")]
@@ -195,6 +202,20 @@ public class DynamicController : ControllerBase
         var result = await _dispatcher.DispatchAsync(request);
         
         return result.Success ? Ok(result.Data) : BadRequest(result.ErrorMessage);
+    }
+
+    [HttpGet("operations")]
+    public IActionResult GetOperations()
+    {
+        var operations = _registry.GetOperationSummaries(_descriptionGenerator);
+        return Ok(operations);
+    }
+
+    [HttpGet("operations/by-entity")]
+    public IActionResult GetOperationsByEntity()
+    {
+        var operationsByEntity = _registry.GetOperationsByEntity(_descriptionGenerator);
+        return Ok(operationsByEntity);
     }
 }
 ```
