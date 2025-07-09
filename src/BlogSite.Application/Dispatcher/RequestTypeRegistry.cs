@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using MediatR;
+using BlogSite.Application.Services;
 
 namespace BlogSite.Application.Dispatcher;
 
@@ -12,9 +13,12 @@ public class RequestTypeRegistry : IRequestTypeRegistry
     private readonly ConcurrentDictionary<string, Type> _typeCache = new();
     private readonly ConcurrentDictionary<string, OperationMetadata> _operationCache = new();
     private readonly Assembly[] _assemblies;
+    private readonly IEntityDiscoveryService? _entityDiscoveryService;
 
-    public RequestTypeRegistry()
+    public RequestTypeRegistry(IEntityDiscoveryService? entityDiscoveryService = null)
     {
+        _entityDiscoveryService = entityDiscoveryService;
+        
         // Load assemblies that might contain commands and queries
         _assemblies = new[]
         {
@@ -140,25 +144,181 @@ public class RequestTypeRegistry : IRequestTypeRegistry
             return null;
         }
 
-        // Now parse {Action}{Entity} from remainingName
-        // This is tricky because we need to know where Action ends and Entity begins
-        // We'll use some heuristics and known entity types
-        var knownEntities = new[] { "Author", "BlogPost", "Category", "Comment" };
+        // Extract entity and action from remainingName
+        var result = ExtractEntityAndAction(remainingName);
+        if (result == null)
+            return null;
+
+        var (entity, action) = result.Value;
+        var responseType = GetResponseType(type);
+        return new OperationMetadata(operationType, entity, action, type, responseType);
+    }
+
+    /// <summary>
+    /// Dynamically extracts entity and action from the remaining type name
+    /// </summary>
+    private (string Entity, string Action)? ExtractEntityAndAction(string remainingName)
+    {
+        if (string.IsNullOrEmpty(remainingName))
+            return null;
+
+        // Get known entities from EntityDiscoveryService if available, 
+        // otherwise discover from existing types
+        var knownEntities = GetKnownEntities();
         
-        foreach (var entity in knownEntities)
+        // Try to match known entities (longest first to handle composite entities like "BlogPost")
+        foreach (var entity in knownEntities.OrderByDescending(e => e.Length))
         {
             if (remainingName.EndsWith(entity, StringComparison.OrdinalIgnoreCase))
             {
                 var action = remainingName[..^entity.Length];
                 if (!string.IsNullOrEmpty(action))
                 {
-                    var responseType = GetResponseType(type);
-                    return new OperationMetadata(operationType, entity, action, type, responseType);
+                    return (entity, action);
                 }
             }
         }
 
+        // If no known entity matches, try to infer the entity dynamically
+        // Look for common patterns and plurals
+        return InferEntityFromPattern(remainingName);
+    }
+
+    /// <summary>
+    /// Gets known entities from EntityDiscoveryService or discovers them dynamically
+    /// </summary>
+    private HashSet<string> GetKnownEntities()
+    {
+        // Try to get entities from EntityDiscoveryService if available
+        if (_entityDiscoveryService != null)
+        {
+            try
+            {
+                var discoveredEntities = _entityDiscoveryService.GetAvailableEntities();
+                if (discoveredEntities.Any())
+                {
+                    return new HashSet<string>(discoveredEntities, StringComparer.OrdinalIgnoreCase);
+                }
+            }
+            catch
+            {
+                // Fall back to dynamic discovery if service fails
+            }
+        }
+
+        // Fallback: Discover entities from existing command/query types
+        var entities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        
+        foreach (var assembly in _assemblies)
+        {
+            var commandQueryTypes = assembly.GetTypes()
+                .Where(t => IsValidRequestType(t) && 
+                          (t.Name.EndsWith("Command") || t.Name.EndsWith("Query")))
+                .Select(t => t.Name);
+
+            foreach (var typeName in commandQueryTypes)
+            {
+                var entity = ExtractEntityFromTypeName(typeName);
+                if (!string.IsNullOrEmpty(entity))
+                {
+                    entities.Add(entity);
+                }
+            }
+        }
+
+        // Add common entity patterns if none discovered
+        if (!entities.Any())
+        {
+            entities.UnionWith(new[] { "Author", "BlogPost", "Category", "Comment", "User", "Tag" });
+        }
+
+        return entities;
+    }
+
+    /// <summary>
+    /// Extracts entity name from a command/query type name
+    /// </summary>
+    private string? ExtractEntityFromTypeName(string typeName)
+    {
+        // Remove Command/Query suffix
+        if (typeName.EndsWith("Command"))
+            typeName = typeName[..^7];
+        else if (typeName.EndsWith("Query"))
+            typeName = typeName[..^5];
+
+        // Try to find entity by looking for capitalized words at the end
+        var words = SplitCamelCase(typeName);
+        
+        // The entity is typically one of the last words
+        for (int i = words.Count - 1; i >= 0; i--)
+        {
+            var potentialEntity = string.Join("", words.Skip(i));
+            
+            // Check if this looks like an entity (starts with capital, reasonable length)
+            if (potentialEntity.Length > 2 && 
+                char.IsUpper(potentialEntity[0]) &&
+                potentialEntity.Length <= 20)
+            {
+                return potentialEntity;
+            }
+        }
+
         return null;
+    }
+
+    /// <summary>
+    /// Infers entity from pattern when no known entity matches
+    /// </summary>
+    private (string Entity, string Action)? InferEntityFromPattern(string remainingName)
+    {
+        var words = SplitCamelCase(remainingName);
+        
+        if (words.Count < 2)
+            return null;
+
+        // Assume the last word (or last few words) is the entity
+        // and everything before is the action
+        for (int entityWordCount = 1; entityWordCount <= Math.Min(3, words.Count - 1); entityWordCount++)
+        {
+            var entity = string.Join("", words.TakeLast(entityWordCount));
+            var action = string.Join("", words.Take(words.Count - entityWordCount));
+            
+            if (!string.IsNullOrEmpty(action) && !string.IsNullOrEmpty(entity))
+            {
+                return (entity, action);
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Splits a camelCase/PascalCase string into individual words
+    /// </summary>
+    private List<string> SplitCamelCase(string input)
+    {
+        var words = new List<string>();
+        var currentWord = new System.Text.StringBuilder();
+
+        for (int i = 0; i < input.Length; i++)
+        {
+            char c = input[i];
+            
+            if (char.IsUpper(c) && currentWord.Length > 0)
+            {
+                words.Add(currentWord.ToString());
+                currentWord.Clear();
+            }
+            
+            currentWord.Append(c);
+        }
+
+        if (currentWord.Length > 0)
+        {
+            words.Add(currentWord.ToString());
+        }
+
+        return words;
     }
 
     private static string CreateKey(string operationType, string entityType, string action)
