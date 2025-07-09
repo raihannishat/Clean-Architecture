@@ -8,6 +8,7 @@ using BlogSite.Application.Queries.Authors;
 using BlogSite.Application.Queries.BlogPosts;
 using BlogSite.Application.Queries.Categories;
 using BlogSite.Application.DTOs;
+using BlogSite.Application.Services;
 
 namespace BlogSite.Application.Dispatcher;
 
@@ -15,6 +16,10 @@ public static class DispatcherExtensions
 {
     public static IServiceCollection AddDispatcher(this IServiceCollection services)
     {
+        // Register pluralization and entity discovery services
+        services.AddSingleton<IPluralizationService, PluralizationService>();
+        services.AddSingleton<IEntityDiscoveryService, EntityDiscoveryService>();
+        
         // Register dispatcher services
         services.AddSingleton<IRequestTypeRegistry, RequestTypeRegistry>();
         services.AddScoped<IDispatcher, Dispatcher>();
