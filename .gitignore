@@ -1,0 +1,86 @@
+## .NET Core build artifacts
+bin/
+obj/
+out/
+
+## .NET dependencies
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Visual Studio files
+.vs/
+*.swp
+*.swo
+*~
+
+## User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Entity Framework migrations
+Migrations/
+
+## SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+## Package files
+*.deb
+*.nupkg
+*.snupkg
+
+## Visual Studio cache files
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+## Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## NuGet packages
+*.nupkg
+packages/
+!packages/build/
+!packages/repositories.config
+
+## MSBuild log and settings
+*.binlog
+
+## JetBrains Rider
+.idea/
+*.sln.iml
+
+## Mac
+.DS_Store
+
+## Node modules (if any)
+node_modules/
+npm-debug.log*
+
+## Development settings
+appsettings.Development.json
+
+## Temporary files
+*.tmp
+*.temp
