@@ -1,24 +1,21 @@
 using System.Text.Json;
 using MediatR;
 using System.Text.RegularExpressions;
+using BlogSite.Application.Services;
 
 namespace BlogSite.Application.Dispatcher;
 
 public class Dispatcher
 {
     private readonly IServiceProvider _provider;
-    private readonly string[] _knownEntities = { "Author", "BlogPost", "Category", "Comment" };
-    private readonly Dictionary<string, string> _entityPlurals = new()
-    {
-        { "author", "authors" },
-        { "blogpost", "blogposts" },
-        { "category", "categories" },
-        { "comment", "comments" }
-    };
+    private readonly IEntityDiscoveryService _entityDiscoveryService;
+    private readonly IPluralizationService _pluralizationService;
 
-    public Dispatcher(IServiceProvider provider)
+    public Dispatcher(IServiceProvider provider, IEntityDiscoveryService entityDiscoveryService, IPluralizationService pluralizationService)
     {
         _provider = provider;
+        _entityDiscoveryService = entityDiscoveryService;
+        _pluralizationService = pluralizationService;
     }
 
     public async Task<object?> DispatchAsync(string action, JsonElement payload)
@@ -201,56 +198,24 @@ public class Dispatcher
 
     private string GetEntityNameFromPlural(string pluralForm)
     {
-        var lower = pluralForm.ToLower();
-        
-        // Check if it's a known plural form
-        var match = _entityPlurals.FirstOrDefault(x => x.Value == lower);
-        if (match.Key != null)
-        {
-            return GetProperEntityName(match.Key);
-        }
-
-        // Try simple plural rules
-        if (lower.EndsWith("ies"))
-        {
-            var singular = lower.Substring(0, lower.Length - 3) + "y";
-            return GetProperEntityName(singular);
-        }
-        else if (lower.EndsWith("s"))
-        {
-            var singular = lower.Substring(0, lower.Length - 1);
-            return GetProperEntityName(singular);
-        }
-
-        return GetProperEntityName(lower);
+        // Use the pluralization service to convert plural to singular
+        var singular = _pluralizationService.Singularize(pluralForm);
+        return _entityDiscoveryService.GetProperEntityName(singular);
     }
 
     private string GetEntityNameFromSingularOrPlural(string entityPart)
     {
-        var lower = entityPart.ToLower();
-        
-        // Check if it's already a known entity
-        if (_knownEntities.Any(e => e.ToLower() == lower))
+        // First try to get the proper entity name directly
+        if (_entityDiscoveryService.IsValidEntity(entityPart))
         {
-            return GetProperEntityName(lower);
+            return _entityDiscoveryService.GetProperEntityName(entityPart);
         }
 
         // Check if it might be plural
         return GetEntityNameFromPlural(entityPart);
     }
 
-    private string GetProperEntityName(string entityName)
-    {
-        var lower = entityName.ToLower();
-        return lower switch
-        {
-            "author" => "Author",
-            "blogpost" => "BlogPost",
-            "category" => "Category",
-            "comment" => "Comment",
-            _ => ToPascalCase(entityName)
-        };
-    }
+
 
     private string ParseCamelCaseWords(string input)
     {
