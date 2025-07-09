@@ -1,3 +1,48 @@
+/// <summary>
+/// ## 🚀 Dynamic API System
+/// 
+/// This API uses a **Dynamic Dispatch System** with **ASP.NET Core Minimal APIs** that automatically routes requests to appropriate CQRS handlers without the need for traditional controllers.
+/// 
+/// ### 🎯 Dynamic Endpoint Structure
+/// 
+/// Instead of predefined endpoints, the API uses a dynamic routing system:
+/// 
+/// **Base Route**: `/api/dispatch/{action}`
+/// 
+/// **Usage Examples**:
+/// - `POST /api/dispatch/getallauthors` - Get all authors
+/// - `POST /api/dispatch/createauthor` - Create new author
+/// - `POST /api/dispatch/getauthorbyid` - Get author by ID
+/// - `POST /api/dispatch/getallcategories` - Get all categories
+/// - `POST /api/dispatch/createcategory` - Create new category
+/// - `POST /api/dispatch/getpublishedblogposts` - Get published blog posts
+/// 
+/// ### ⚡ Auto-Discovery Features
+/// 
+/// - **Automatic Type Resolution**: Dynamically finds and executes CQRS handlers
+/// - **Convention-Based Routing**: Action names automatically map to handler classes
+/// - **Smart Case Conversion**: `getallauthors` → `GetAllAuthorsQuery`
+/// - **Entity Recognition**: Automatically detects entity types (Author, BlogPost, Category, Comment)
+/// - **Operation Type Detection**: Automatically determines if it's a Query or Command
+/// 
+/// ### 📝 Request Format
+/// 
+/// All requests use JSON payload format:
+/// 
+/// ```json
+/// POST /api/dispatch/{action}
+/// Content-Type: application/json
+/// 
+/// {
+///   // Request parameters specific to the action
+/// }
+/// ```
+/// 
+/// ### 🔍 Available Actions
+/// 
+/// The system automatically discovers and supports all CQRS operations. Use the Swagger documentation at the root URL (`/`) to explore all available endpoints and their request/response formats.
+/// </summary>
+
 using System.Text.Json;
 using MediatR;
 using System.Text.RegularExpressions;
@@ -5,20 +50,35 @@ using BlogSite.Application.Services;
 
 namespace BlogSite.Application.Dispatcher;
 
-public class Dispatcher
+public class Dispatcher : IDispatcher
 {
     private readonly IServiceProvider _provider;
+    private readonly IRequestTypeRegistry _registry;
     private readonly IEntityDiscoveryService _entityDiscoveryService;
     private readonly IPluralizationService _pluralizationService;
 
-    public Dispatcher(IServiceProvider provider, IEntityDiscoveryService entityDiscoveryService, IPluralizationService pluralizationService)
+    public Dispatcher(IServiceProvider provider, IRequestTypeRegistry registry, IEntityDiscoveryService entityDiscoveryService, IPluralizationService pluralizationService)
     {
         _provider = provider;
+        _registry = registry;
         _entityDiscoveryService = entityDiscoveryService;
         _pluralizationService = pluralizationService;
     }
 
-    public async Task<object?> DispatchAsync(string action, JsonElement payload)
+    public async Task<DispatchResult> DispatchAsync(DispatchRequest request, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = await DispatchInternalAsync(request.Action, request.Payload ?? JsonDocument.Parse("{}").RootElement);
+            return new DispatchResult(true, result);
+        }
+        catch (Exception ex)
+        {
+            return new DispatchResult(false, null, ex.Message, "DispatchError");
+        }
+    }
+
+    private async Task<object?> DispatchInternalAsync(string action, JsonElement payload)
     {
         // Normalize action to lowercase for comparison
         var normalizedAction = action.ToLowerInvariant();
@@ -27,12 +87,15 @@ public class Dispatcher
         bool isQuery = normalizedAction.StartsWith("get");
         string suffix = isQuery ? "Query" : "Command";
 
-        // Parse action dynamically
-        string className = ParseActionDynamically(normalizedAction, suffix);
+        // Parse action dynamically to get class name
+        string className = ParseActionToClassName(normalizedAction, suffix);
 
-        var type = FindTypeByName(className);
+        var type = _registry.ResolveRequestType(className);
         if (type is null)
-            throw new Exception($"Handler type '{className}' not found for action '{action}'");
+        {
+            var availableActions = GetAvailableActions();
+            throw new Exception($"Handler type '{className}' not found. Available actions: {string.Join(", ", availableActions)}");
+        }
 
         var instance = payload.Deserialize(type)!;
 
@@ -46,7 +109,7 @@ public class Dispatcher
         return await handler.Handle((dynamic)instance, CancellationToken.None);
     }
 
-    private string ParseActionDynamically(string normalizedAction, string suffix)
+    private string ParseActionToClassName(string normalizedAction, string suffix)
     {
         // Handle "get by entity" patterns (e.g., "getbyauthor" -> "GetByAuthor")
         if (normalizedAction.StartsWith("getby"))
@@ -84,8 +147,49 @@ public class Dispatcher
             return HandleCommandPattern(normalizedAction, suffix);
         }
 
+        // Dynamic parsing with smart entity detection
+        var knownEntities = GetKnownEntities();
+        
+        // Try to parse patterns with entity recognition
+        var bestMatch = FindBestEntityMatch(normalizedAction, knownEntities);
+        
+        if (bestMatch != null)
+        {
+            var actionPart = normalizedAction.Replace(bestMatch.EntityName.ToLowerInvariant(), "");
+            var cleanAction = ToPascalCase(actionPart);
+            return $"{cleanAction}{bestMatch.EntityName}{suffix}";
+        }
+        
         // Fallback: convert entire action to PascalCase
         return $"{ToPascalCase(normalizedAction)}{suffix}";
+    }
+
+    private EntityMatch? FindBestEntityMatch(string normalizedAction, string[] entities)
+    {
+        EntityMatch? bestMatch = null;
+        int bestScore = 0;
+
+        foreach (var entity in entities)
+        {
+            var entityLower = entity.ToLowerInvariant();
+            
+            // Check if action contains this entity name
+            if (normalizedAction.Contains(entityLower))
+            {
+                // Score based on length and position
+                int score = entityLower.Length;
+                if (normalizedAction.EndsWith(entityLower))
+                    score += 10; // Prefer entity at the end
+                
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestMatch = new EntityMatch(entity, entityLower);
+                }
+            }
+        }
+
+        return bestMatch;
     }
 
     private string HandleGetByEntityPattern(string entityPart, string suffix)
@@ -215,6 +319,8 @@ public class Dispatcher
         return ToPascalCase(result);
     }
 
+    private record EntityMatch(string EntityName, string LowerEntityName);
+
     private string ToPascalCase(string input)
     {
         if (string.IsNullOrEmpty(input))
@@ -231,11 +337,46 @@ public class Dispatcher
         return char.ToUpperInvariant(input[0]) + input[1..].ToLowerInvariant();
     }
 
-    private Type? FindTypeByName(string className)
+    private string[] GetKnownEntities()
     {
-        return AppDomain.CurrentDomain
-            .GetAssemblies()
-            .SelectMany(a => a.GetTypes())
-            .FirstOrDefault(t => t.Name.Equals(className, StringComparison.OrdinalIgnoreCase));
+        // Get entities from both registry operations and entity discovery service
+        var registryEntities = _registry.GetAllOperations()
+            .Select(op => op.EntityType)
+            .Distinct()
+            .ToArray();
+
+        var discoveredEntities = _entityDiscoveryService.GetEntityNames().ToArray();
+
+        return registryEntities.Concat(discoveredEntities).Distinct().ToArray();
+    }
+
+    private string[] GetAvailableActions()
+    {
+        var operations = _registry.GetAllOperations();
+        return operations.Select(op => CreateActionName(op))
+                        .ToArray();
+    }
+
+    private string CreateActionName(OperationMetadata operation)
+    {
+        // Convert operation metadata back to action name
+        // Example: GetAllAuthorsQuery -> getallauthors
+        var actionPart = operation.Action.ToLowerInvariant();
+        var entityPart = operation.EntityType.ToLowerInvariant();
+        
+        if (actionPart.Contains("all"))
+            return $"getall{_pluralizationService.Pluralize(entityPart)}";
+        if (actionPart.Contains("byid"))
+            return $"get{entityPart}byid";
+        if (actionPart.Contains("byemail"))
+            return $"get{entityPart}byemail";
+        if (actionPart.StartsWith("create"))
+            return $"create{entityPart}";
+        if (actionPart.StartsWith("update"))
+            return $"update{entityPart}";
+        if (actionPart.StartsWith("delete"))
+            return $"delete{entityPart}";
+            
+        return $"{actionPart}{entityPart}";
     }
 }
