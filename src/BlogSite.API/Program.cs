@@ -34,6 +34,9 @@ builder.Services.AddMediatR(cfg => {
 builder.Services.Configure<BlogSite.Application.Configuration.OperationDescriptionConfig>(
     builder.Configuration.GetSection("OperationDescription"));
 
+// Add HttpContextAccessor for dynamic operation context
+builder.Services.AddHttpContextAccessor();
+
 // Register Dispatcher Pattern services
 builder.Services.AddDispatcher();
 

@@ -17,6 +17,11 @@ public static class DispatcherExtensions
         // Register pattern matching service
         services.AddSingleton<IPatternMatcher, PatternMatcher>();
         
+        // Register enhanced template processing services
+        services.AddSingleton<IExpressionEvaluator, SimpleExpressionEvaluator>();
+        services.AddSingleton<ITemplateProcessor, AdvancedTemplateProcessor>();
+        services.AddScoped<IOperationContext, OperationContext>();
+        
         // Register operation description generator (requires configuration)
         services.AddSingleton<IOperationDescriptionGenerator, SmartOperationDescriptionGenerator>();
         
