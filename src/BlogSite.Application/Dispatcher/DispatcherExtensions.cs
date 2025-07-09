@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using MediatR;
 using BlogSite.Application.Services;
+using BlogSite.Application.Configuration;
 
 namespace BlogSite.Application.Dispatcher;
 
@@ -13,7 +14,10 @@ public static class DispatcherExtensions
         services.AddSingleton<IPluralizationService, PluralizationService>();
         services.AddSingleton<IEntityDiscoveryService, EntityDiscoveryService>();
         
-        // Register operation description generator
+        // Register pattern matching service
+        services.AddSingleton<IPatternMatcher, PatternMatcher>();
+        
+        // Register operation description generator (requires configuration)
         services.AddSingleton<IOperationDescriptionGenerator, SmartOperationDescriptionGenerator>();
         
         // Register dispatcher services

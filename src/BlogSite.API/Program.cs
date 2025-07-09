@@ -30,6 +30,10 @@ builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(BlogSite.Application.Commands.Authors.CreateAuthorCommand).Assembly);
 });
 
+// Configure operation description settings
+builder.Services.Configure<BlogSite.Application.Configuration.OperationDescriptionConfig>(
+    builder.Configuration.GetSection("OperationDescription"));
+
 // Register Dispatcher Pattern services
 builder.Services.AddDispatcher();
 
