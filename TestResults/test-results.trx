@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="94b966c5-1333-4058-bbaf-35505a8a028e" name="Raihan@DESKTOP-QSMFJFT 2025-07-11 14:28:42" runUser="DESKTOP-QSMFJFT\Raihan" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-07-11T14:28:42.5366663+06:00" queuing="2025-07-11T14:28:42.5366666+06:00" start="2025-07-11T14:28:40.6786185+06:00" finish="2025-07-11T14:29:13.1220427+06:00" />
+  <TestSettings name="default" id="852ef989-302a-4501-8d82-5f39447aa3aa">
+    <Deployment runDeploymentRoot="Raihan_DESKTOP-QSMFJFT_2025-07-11_14_28_42" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="e17b823b-0b92-4d3c-9e4d-1658f8ba234d" testId="1e9d714b-d026-514b-752e-dd3161ee3aa6" testName="BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewCategories" computerName="DESKTOP-QSMFJFT" duration="00:00:05.4094739" startTime="2025-07-11T14:28:57.5465807+06:00" endTime="2025-07-11T14:28:57.5465811+06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e17b823b-0b92-4d3c-9e4d-1658f8ba234d">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.</Message>
+          <StackTrace>   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+   at BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewCategories() in D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs:line 182&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+   at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b89f60dc-3910-4538-9620-64a27786e16a" testId="7e93aea9-6440-ede8-d590-84860048e603" testName="BlogApp.E2ETests.UnitTest1.Test1" computerName="DESKTOP-QSMFJFT" duration="00:00:00.0019268" startTime="2025-07-11T14:28:41.1373524+06:00" endTime="2025-07-11T14:28:41.1374028+06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b89f60dc-3910-4538-9620-64a27786e16a" />
+    <UnitTestResult executionId="8fbccf61-f3fb-495c-83d7-9b87f81bfcd2" testId="1ddfd1e6-a8de-622a-b79f-7de5726b5856" testName="BlogApp.E2ETests.UI.BlogAppE2ETests.ApiEndpointsAreAccessible" computerName="DESKTOP-QSMFJFT" duration="00:00:05.2214973" startTime="2025-07-11T14:29:02.7699394+06:00" endTime="2025-07-11T14:29:02.7699399+06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8fbccf61-f3fb-495c-83d7-9b87f81bfcd2">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.</Message>
+          <StackTrace>   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+   at BlogApp.E2ETests.UI.BlogAppE2ETests.ApiEndpointsAreAccessible() in D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs:line 226&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+   at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ac6cb653-0176-4e92-b7b4-961cc92d9bcc" testId="7785d1e1-87ba-7ae8-b5d9-319784856704" testName="BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanLoginAndAccessBlogFeatures" computerName="DESKTOP-QSMFJFT" duration="00:00:05.1768278" startTime="2025-07-11T14:29:07.9469513+06:00" endTime="2025-07-11T14:29:07.9469516+06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ac6cb653-0176-4e92-b7b4-961cc92d9bcc">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.</Message>
+          <StackTrace>   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+   at BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanLoginAndAccessBlogFeatures() in D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs:line 47&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+   at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4a5086ce-d15f-4f31-b8c6-dda8bb5d0e53" testId="fa2b6108-afbe-2bc5-3d90-62a87b57e9fd" testName="BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanCreateNewBlogPost" computerName="DESKTOP-QSMFJFT" duration="00:00:10.9962923" startTime="2025-07-11T14:28:52.1381918+06:00" endTime="2025-07-11T14:28:52.1381921+06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4a5086ce-d15f-4f31-b8c6-dda8bb5d0e53">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.</Message>
+          <StackTrace>   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+   at BlogApp.E2ETests.UI.BlogAppE2ETests.LoginUser() in D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs:line 257&#xD;
+   at BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanCreateNewBlogPost() in D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs:line 133&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+   at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="327462d0-f141-4b0c-bf8c-fff1f93c3730" testId="8ad6c691-c2de-d7b5-5575-7f1a36a730e4" testName="BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewBlogPosts" computerName="DESKTOP-QSMFJFT" duration="00:00:05.1271154" startTime="2025-07-11T14:29:13.0747709+06:00" endTime="2025-07-11T14:29:13.0747711+06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="327462d0-f141-4b0c-bf8c-fff1f93c3730">
+      <Output>
+        <ErrorInfo>
+          <Message>System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.</Message>
+          <StackTrace>   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+   at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+   at BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewBlogPosts() in D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs:line 109&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+   at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+   at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanCreateNewBlogPost" storage="d:\code\example\tests\blogapp.e2etests\bin\debug\net9.0\blogapp.e2etests.dll" id="fa2b6108-afbe-2bc5-3d90-62a87b57e9fd">
+      <Execution id="4a5086ce-d15f-4f31-b8c6-dda8bb5d0e53" />
+      <TestMethod codeBase="D:\Code\example\Tests\BlogApp.E2ETests\bin\Debug\net9.0\BlogApp.E2ETests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="BlogApp.E2ETests.UI.BlogAppE2ETests" name="UserCanCreateNewBlogPost" />
+    </UnitTest>
+    <UnitTest name="BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanLoginAndAccessBlogFeatures" storage="d:\code\example\tests\blogapp.e2etests\bin\debug\net9.0\blogapp.e2etests.dll" id="7785d1e1-87ba-7ae8-b5d9-319784856704">
+      <Execution id="ac6cb653-0176-4e92-b7b4-961cc92d9bcc" />
+      <TestMethod codeBase="D:\Code\example\Tests\BlogApp.E2ETests\bin\Debug\net9.0\BlogApp.E2ETests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="BlogApp.E2ETests.UI.BlogAppE2ETests" name="UserCanLoginAndAccessBlogFeatures" />
+    </UnitTest>
+    <UnitTest name="BlogApp.E2ETests.UI.BlogAppE2ETests.ApiEndpointsAreAccessible" storage="d:\code\example\tests\blogapp.e2etests\bin\debug\net9.0\blogapp.e2etests.dll" id="1ddfd1e6-a8de-622a-b79f-7de5726b5856">
+      <Execution id="8fbccf61-f3fb-495c-83d7-9b87f81bfcd2" />
+      <TestMethod codeBase="D:\Code\example\Tests\BlogApp.E2ETests\bin\Debug\net9.0\BlogApp.E2ETests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="BlogApp.E2ETests.UI.BlogAppE2ETests" name="ApiEndpointsAreAccessible" />
+    </UnitTest>
+    <UnitTest name="BlogApp.E2ETests.UnitTest1.Test1" storage="d:\code\example\tests\blogapp.e2etests\bin\debug\net9.0\blogapp.e2etests.dll" id="7e93aea9-6440-ede8-d590-84860048e603">
+      <Execution id="b89f60dc-3910-4538-9620-64a27786e16a" />
+      <TestMethod codeBase="D:\Code\example\Tests\BlogApp.E2ETests\bin\Debug\net9.0\BlogApp.E2ETests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="BlogApp.E2ETests.UnitTest1" name="Test1" />
+    </UnitTest>
+    <UnitTest name="BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewBlogPosts" storage="d:\code\example\tests\blogapp.e2etests\bin\debug\net9.0\blogapp.e2etests.dll" id="8ad6c691-c2de-d7b5-5575-7f1a36a730e4">
+      <Execution id="327462d0-f141-4b0c-bf8c-fff1f93c3730" />
+      <TestMethod codeBase="D:\Code\example\Tests\BlogApp.E2ETests\bin\Debug\net9.0\BlogApp.E2ETests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="BlogApp.E2ETests.UI.BlogAppE2ETests" name="UserCanViewBlogPosts" />
+    </UnitTest>
+    <UnitTest name="BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewCategories" storage="d:\code\example\tests\blogapp.e2etests\bin\debug\net9.0\blogapp.e2etests.dll" id="1e9d714b-d026-514b-752e-dd3161ee3aa6">
+      <Execution id="e17b823b-0b92-4d3c-9e4d-1658f8ba234d" />
+      <TestMethod codeBase="D:\Code\example\Tests\BlogApp.E2ETests\bin\Debug\net9.0\BlogApp.E2ETests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="BlogApp.E2ETests.UI.BlogAppE2ETests" name="UserCanViewCategories" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="1e9d714b-d026-514b-752e-dd3161ee3aa6" executionId="e17b823b-0b92-4d3c-9e4d-1658f8ba234d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7e93aea9-6440-ede8-d590-84860048e603" executionId="b89f60dc-3910-4538-9620-64a27786e16a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1ddfd1e6-a8de-622a-b79f-7de5726b5856" executionId="8fbccf61-f3fb-495c-83d7-9b87f81bfcd2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7785d1e1-87ba-7ae8-b5d9-319784856704" executionId="ac6cb653-0176-4e92-b7b4-961cc92d9bcc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fa2b6108-afbe-2bc5-3d90-62a87b57e9fd" executionId="4a5086ce-d15f-4f31-b8c6-dda8bb5d0e53" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8ad6c691-c2de-d7b5-5575-7f1a36a730e4" executionId="327462d0-f141-4b0c-bf8c-fff1f93c3730" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="6" executed="6" passed="1" failed="5" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 9.0.7)&#xD;
+[xUnit.net 00:00:00.05]   Discovering: BlogApp.E2ETests&#xD;
+[xUnit.net 00:00:00.07]   Discovered:  BlogApp.E2ETests&#xD;
+[xUnit.net 00:00:00.07]   Starting:    BlogApp.E2ETests&#xD;
+Starting ChromeDriver 138.0.7204.94 (5450257488848fa5bab09dea663ce77edfb17672-refs/branch-heads/7204_50@{#10}) on port 2078&#xD;
+Only local connections are allowed.&#xD;
+Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.&#xD;
+ChromeDriver was started successfully on port 2078.&#xD;
+[xUnit.net 00:00:11.10]       System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+[xUnit.net 00:00:11.10]       ---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.&#xD;
+[xUnit.net 00:00:11.10]       Stack Trace:&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+[xUnit.net 00:00:11.10]            at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+[xUnit.net 00:00:11.10]         D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs(257,0): at BlogApp.E2ETests.UI.BlogAppE2ETests.LoginUser()&#xD;
+[xUnit.net 00:00:11.10]         D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs(133,0): at BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanCreateNewBlogPost()&#xD;
+[xUnit.net 00:00:11.10]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:11.10]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:11.10]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+Starting ChromeDriver 138.0.7204.94 (5450257488848fa5bab09dea663ce77edfb17672-refs/branch-heads/7204_50@{#10}) on port 2158&#xD;
+Only local connections are allowed.&#xD;
+Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.&#xD;
+ChromeDriver was started successfully on port 2158.&#xD;
+[xUnit.net 00:00:16.51]       System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+[xUnit.net 00:00:16.51]       ---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.&#xD;
+[xUnit.net 00:00:16.51]       Stack Trace:&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+[xUnit.net 00:00:16.51]            at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+[xUnit.net 00:00:16.51]         D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs(182,0): at BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewCategories()&#xD;
+[xUnit.net 00:00:16.51]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:16.51]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:16.51]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+Starting ChromeDriver 138.0.7204.94 (5450257488848fa5bab09dea663ce77edfb17672-refs/branch-heads/7204_50@{#10}) on port 2186&#xD;
+Only local connections are allowed.&#xD;
+Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.&#xD;
+ChromeDriver was started successfully on port 2186.&#xD;
+[xUnit.net 00:00:21.73]       System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+[xUnit.net 00:00:21.73]       ---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.&#xD;
+[xUnit.net 00:00:21.73]       Stack Trace:&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+[xUnit.net 00:00:21.73]            at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+[xUnit.net 00:00:21.73]         D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs(226,0): at BlogApp.E2ETests.UI.BlogAppE2ETests.ApiEndpointsAreAccessible()&#xD;
+[xUnit.net 00:00:21.73]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:21.73]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:21.73]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+Starting ChromeDriver 138.0.7204.94 (5450257488848fa5bab09dea663ce77edfb17672-refs/branch-heads/7204_50@{#10}) on port 2217&#xD;
+Only local connections are allowed.&#xD;
+Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.&#xD;
+ChromeDriver was started successfully on port 2217.&#xD;
+[xUnit.net 00:00:26.91]       System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+[xUnit.net 00:00:26.91]       ---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.&#xD;
+[xUnit.net 00:00:26.91]       Stack Trace:&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+[xUnit.net 00:00:26.91]            at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+[xUnit.net 00:00:26.91]         D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs(47,0): at BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanLoginAndAccessBlogFeatures()&#xD;
+[xUnit.net 00:00:26.91]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:26.91]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:26.91]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+Starting ChromeDriver 138.0.7204.94 (5450257488848fa5bab09dea663ce77edfb17672-refs/branch-heads/7204_50@{#10}) on port 2241&#xD;
+Only local connections are allowed.&#xD;
+Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.&#xD;
+ChromeDriver was started successfully on port 2241.&#xD;
+[xUnit.net 00:00:32.04]       System.Net.Http.HttpRequestException : No connection could be made because the target machine actively refused it. (localhost:7001)&#xD;
+[xUnit.net 00:00:32.04]       ---- System.Net.Sockets.SocketException : No connection could be made because the target machine actively refused it.&#xD;
+[xUnit.net 00:00:32.04]       Stack Trace:&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Http.HttpConnectionPool.ConnectAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Http.HttpConnectionPool.CreateHttp11ConnectionAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Http.HttpConnectionPool.InjectNewHttp11ConnectionAsync(QueueItem queueItem)&#xD;
+[xUnit.net 00:00:32.04]            at System.Threading.Tasks.TaskCompletionSourceWithCancellation`1.WaitWithCancellationAsync(CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Http.HttpClient.&lt;SendAsync&gt;g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)&#xD;
+[xUnit.net 00:00:32.04]         D:\Code\example\Tests\BlogApp.E2ETests\UI\BlogAppE2ETests.cs(109,0): at BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewBlogPosts()&#xD;
+[xUnit.net 00:00:32.04]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:32.04]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource.GetResult(Int16 token)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Sockets.Socket.&lt;ConnectAsync&gt;g__WaitForConnectWithCancellation|285_0(AwaitableSocketAsyncEventArgs saea, ValueTask connectTask, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]            at System.Net.Http.HttpConnectionPool.ConnectToTcpHostAsync(String host, Int32 port, HttpRequestMessage initialRequest, Boolean async, CancellationToken cancellationToken)&#xD;
+[xUnit.net 00:00:32.04]   Finished:    BlogApp.E2ETests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="DESKTOP-QSMFJFT" outcome="Error" timestamp="2025-07-11T14:28:52.1367829+06:00">
+        <Text>[xUnit.net 00:00:11.10]     BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanCreateNewBlogPost [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QSMFJFT" outcome="Error" timestamp="2025-07-11T14:28:57.5465348+06:00">
+        <Text>[xUnit.net 00:00:16.51]     BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewCategories [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QSMFJFT" outcome="Error" timestamp="2025-07-11T14:29:02.7690357+06:00">
+        <Text>[xUnit.net 00:00:21.73]     BlogApp.E2ETests.UI.BlogAppE2ETests.ApiEndpointsAreAccessible [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QSMFJFT" outcome="Error" timestamp="2025-07-11T14:29:07.9466238+06:00">
+        <Text>[xUnit.net 00:00:26.91]     BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanLoginAndAccessBlogFeatures [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="DESKTOP-QSMFJFT" outcome="Error" timestamp="2025-07-11T14:29:13.0746213+06:00">
+        <Text>[xUnit.net 00:00:32.04]     BlogApp.E2ETests.UI.BlogAppE2ETests.UserCanViewBlogPosts [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

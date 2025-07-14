@@ -73,7 +73,7 @@ public async Task HandleAsync_WithValidCredentials_ShouldReturnSuccessResponse()
 public async Task Dispatcher_WithValidLoginCommand_ShouldReturnSuccessResponse()
 {
     // Arrange
-    var request = new { operation = "LoginCommand", data = new { email = "admin@blogapp.com", password = "Admin123!" } };
+    var request = new { operation = "Login", data = new { email = "admin@blogapp.com", password = "Admin123!" } };
     var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
     // Act

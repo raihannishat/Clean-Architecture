@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "BlogApp\\BlogApp.csproj",
+        "Action": "Start",
+        "DebugTarget": "IIS Express"
+      },
+      {
+        "Path": "BlogApp.API\\BlogApp.API.csproj",
+        "Action": "Start",
+        "DebugTarget": "BlogApp.API"
+      }
+    ]
+  }
+]
