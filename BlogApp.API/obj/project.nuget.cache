@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "UBU3xYSaiAI=",
+  "dgSpecHash": "pYLLVcvoo8Q=",
   "success": true,
-  "projectFilePath": "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj",
+  "projectFilePath": "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Raihan\\.nuget\\packages\\auto-register\\9.0.100\\auto-register.9.0.100.nupkg.sha512",
     "C:\\Users\\Raihan\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",

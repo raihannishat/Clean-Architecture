@@ -8,17 +8,18 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using BlogApp.API.Core.Entities;
 using BlogApp.API.Infrastructure.Persistence.Contexts;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlogApp.API.Infrastructure.Services
 {
     public class OutboxProcessor : BackgroundService
     {
-        private readonly CommandDbContext _dbContext;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IMongoDatabase _mongoDatabase;
 
-        public OutboxProcessor(CommandDbContext dbContext, IMongoDatabase mongoDatabase)
+        public OutboxProcessor(IServiceProvider serviceProvider, IMongoDatabase mongoDatabase)
         {
-            _dbContext = dbContext;
+            _serviceProvider = serviceProvider;
             _mongoDatabase = mongoDatabase;
         }
 
@@ -26,28 +27,31 @@ namespace BlogApp.API.Infrastructure.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var messages = await _dbContext.OutboxMessages
-                    .Where(m => m.ProcessedOn == null)
-                    .OrderBy(m => m.OccurredOn)
-                    .Take(10)
-                    .ToListAsync(stoppingToken);
-
-                foreach (var message in messages)
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    try
+                    var dbContext = scope.ServiceProvider.GetRequiredService<CommandDbContext>();
+                    var messages = await dbContext.OutboxMessages
+                        .Where(m => m.ProcessedOn == null)
+                        .OrderBy(m => m.OccurredOn)
+                        .Take(10)
+                        .ToListAsync(stoppingToken);
+
+                    foreach (var message in messages)
                     {
-                        var collection = _mongoDatabase.GetCollection<BsonDocument>(message.Type);
-                        var doc = BsonDocument.Parse(message.Payload);
-                        await collection.InsertOneAsync(doc, cancellationToken: stoppingToken);
-                        message.ProcessedOn = DateTime.UtcNow;
-                        await _dbContext.SaveChangesAsync(stoppingToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log error if needed
+                        try
+                        {
+                            var collection = _mongoDatabase.GetCollection<BsonDocument>(message.Type);
+                            var doc = BsonDocument.Parse(message.Payload);
+                            await collection.InsertOneAsync(doc, cancellationToken: stoppingToken);
+                            message.ProcessedOn = DateTime.UtcNow;
+                            await dbContext.SaveChangesAsync(stoppingToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log error if needed
+                        }
                     }
                 }
-
                 await Task.Delay(1000, stoppingToken);
             }
         }

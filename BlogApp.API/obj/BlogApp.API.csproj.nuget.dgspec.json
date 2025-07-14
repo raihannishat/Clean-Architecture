@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj": {}
+    "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj": {}
   },
   "projects": {
-    "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj": {
+    "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj",
+        "projectUniqueName": "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj",
         "projectName": "BlogApp.API",
-        "projectPath": "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj",
+        "projectPath": "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj",
         "packagesPath": "C:\\Users\\Raihan\\.nuget\\packages\\",
-        "outputPath": "D:\\Code\\example\\BlogApp.API\\obj\\",
+        "outputPath": "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
