@@ -16,6 +16,8 @@ using AutoRegister;
 using System.Reflection;
 using MongoDB.Driver;
 using BlogApp.API.Application.Common;
+using AutoMapper;
+using BlogApp.API.Application.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,8 +63,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
-
 builder.Services.AddAutoregister(Assembly.GetExecutingAssembly());
 
 builder.Services.AddAuthorization();
@@ -88,6 +88,8 @@ builder.Services.AddSingleton<IMongoDatabase>(sp => {
 });
 // Register OutboxProcessor
 builder.Services.AddHostedService<OutboxProcessor>();
+
+builder.Services.AddApplicationAutoMapper();
 
 var app = builder.Build();
 

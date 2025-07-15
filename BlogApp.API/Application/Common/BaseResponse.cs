@@ -84,7 +84,7 @@ public class BaseResponse<T>
 
 public class BaseResponse : BaseResponse<object>
 {
-    public static BaseResponse Success(string message = "Operation completed successfully")
+    public new static BaseResponse Success(string message = "Operation completed successfully")
     {
         return new BaseResponse
         {
@@ -94,7 +94,7 @@ public class BaseResponse : BaseResponse<object>
         };
     }
 
-    public static BaseResponse Failure(string message, int statusCode = 400)
+    public new static BaseResponse Failure(string message, int statusCode = 400)
     {
         return new BaseResponse
         {
@@ -104,7 +104,7 @@ public class BaseResponse : BaseResponse<object>
         };
     }
 
-    public static BaseResponse Failure(List<string> errors, string message = "Operation failed", int statusCode = 400)
+    public new static BaseResponse Failure(List<string> errors, string message = "Operation failed", int statusCode = 400)
     {
         return new BaseResponse
         {

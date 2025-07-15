@@ -5,6 +5,7 @@ using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
 using BlogApp.API.Application.Features.Comment.DTOs;
 using FluentValidation;
 using AutoRegister;
+using AutoMapper;
 
 namespace BlogApp.API.Application.Features.Comment.Queries;
 
@@ -17,10 +18,12 @@ public record GetCommentsQuery(
 public class GetCommentsQueryHandler : IQueryHandler<GetCommentsQuery, BaseResponse<List<CommentDTO>>>
 {
     private readonly IQueryUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public GetCommentsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory)
+    public GetCommentsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateQueryUnitOfWork();
+        _mapper = mapper;
     }
 
     public async Task<BaseResponse<List<CommentDTO>>> HandleAsync(GetCommentsQuery query, CancellationToken cancellationToken = default)
@@ -34,15 +37,7 @@ public class GetCommentsQueryHandler : IQueryHandler<GetCommentsQuery, BaseRespo
         var comments = await _unitOfWork.Repository<Core.Entities.Comment>().GetAllAsync();
         var filteredComments = comments.Where(c => c.BlogPostId == query.BlogPostId).ToList();
 
-        // Convert to DTOs (simplified mapping)
-        var commentDtos = filteredComments.Select(c => new CommentDTO
-        {
-            Id = c.Id,
-            Content = c.Content,
-            CreatedAt = c.CreatedAt,
-            ParentCommentId = c.ParentCommentId
-        }).ToList();
-
+        var commentDtos = filteredComments.Select(c => _mapper.Map<CommentDTO>(c)).ToList();
         return BaseResponse<List<CommentDTO>>.Success(commentDtos, "Comments retrieved successfully");
     }
 }

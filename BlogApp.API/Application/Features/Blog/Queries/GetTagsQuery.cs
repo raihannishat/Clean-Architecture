@@ -2,39 +2,33 @@ using BlogApp.API.Application.CQRS;
 using BlogApp.API.Application.Common;
 using BlogApp.API.Core.Entities;
 using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using FluentValidation;
 using AutoRegister;
+using BlogApp.API.Application.Features.Blog.DTOs;
+using AutoMapper;
 
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
 public record GetTagsQuery(
     bool IncludeInactive = false
-) : IQuery<BaseResponse<List<Tag>>>;
+) : IQuery<BaseResponse<List<TagDTO>>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class GetTagsQueryHandler : IQueryHandler<GetTagsQuery, BaseResponse<List<Tag>>>
+public class GetTagsQueryHandler : IQueryHandler<GetTagsQuery, BaseResponse<List<TagDTO>>>
 {
     private readonly IQueryUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public GetTagsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory)
+    public GetTagsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateQueryUnitOfWork();
+        _mapper = mapper;
     }
 
-    public async Task<BaseResponse<List<Tag>>> HandleAsync(GetTagsQuery query, CancellationToken cancellationToken = default)
+    public async Task<BaseResponse<List<TagDTO>>> HandleAsync(GetTagsQuery query, CancellationToken cancellationToken = default)
     {
         var tags = await _unitOfWork.Repository<Tag>().GetAllAsync();
         var filteredTags = tags.Where(t => query.IncludeInactive || t.IsActive).ToList();
-
-        return BaseResponse<List<Tag>>.Success(filteredTags, "Tags retrieved successfully");
-    }
-}
-
-[Register(ServiceLifetime.Scoped)]
-public class GetTagsQueryValidator : AbstractValidator<GetTagsQuery>
-{
-    public GetTagsQueryValidator()
-    {
-        // No validation rules needed for this query
+        var tagDtos = filteredTags.Select(t => _mapper.Map<TagDTO>(t)).ToList();
+        return BaseResponse<List<TagDTO>>.Success(tagDtos, "Tags retrieved successfully");
     }
 } 

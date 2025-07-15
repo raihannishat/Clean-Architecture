@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Code\\example\\Tests\\BlogApp.UnitTests\\BlogApp.UnitTests.csproj": {}
+    "D:\\GitHub\\Clean-Architecture\\Tests\\BlogApp.UnitTests\\BlogApp.UnitTests.csproj": {}
   },
   "projects": {
-    "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj": {
+    "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj",
+        "projectUniqueName": "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj",
         "projectName": "BlogApp.API",
-        "projectPath": "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj",
+        "projectPath": "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj",
         "packagesPath": "C:\\Users\\Raihan\\.nuget\\packages\\",
-        "outputPath": "D:\\Code\\example\\BlogApp.API\\obj\\",
+        "outputPath": "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -54,9 +54,9 @@
               "target": "Package",
               "version": "[9.0.100, )"
             },
-            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+            "AutoMapper": {
               "target": "Package",
-              "version": "[12.0.1, )"
+              "version": "[15.0.1, )"
             },
             "FastEndpoints": {
               "target": "Package",
@@ -134,14 +134,14 @@
         }
       }
     },
-    "D:\\Code\\example\\Tests\\BlogApp.UnitTests\\BlogApp.UnitTests.csproj": {
+    "D:\\GitHub\\Clean-Architecture\\Tests\\BlogApp.UnitTests\\BlogApp.UnitTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code\\example\\Tests\\BlogApp.UnitTests\\BlogApp.UnitTests.csproj",
+        "projectUniqueName": "D:\\GitHub\\Clean-Architecture\\Tests\\BlogApp.UnitTests\\BlogApp.UnitTests.csproj",
         "projectName": "BlogApp.UnitTests",
-        "projectPath": "D:\\Code\\example\\Tests\\BlogApp.UnitTests\\BlogApp.UnitTests.csproj",
+        "projectPath": "D:\\GitHub\\Clean-Architecture\\Tests\\BlogApp.UnitTests\\BlogApp.UnitTests.csproj",
         "packagesPath": "C:\\Users\\Raihan\\.nuget\\packages\\",
-        "outputPath": "D:\\Code\\example\\Tests\\BlogApp.UnitTests\\obj\\",
+        "outputPath": "D:\\GitHub\\Clean-Architecture\\Tests\\BlogApp.UnitTests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -162,8 +162,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj": {
-                "projectPath": "D:\\Code\\example\\BlogApp.API\\BlogApp.API.csproj"
+              "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj": {
+                "projectPath": "D:\\GitHub\\Clean-Architecture\\BlogApp.API\\BlogApp.API.csproj"
               }
             }
           }

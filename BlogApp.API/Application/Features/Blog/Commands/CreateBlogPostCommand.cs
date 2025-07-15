@@ -2,8 +2,9 @@ using BlogApp.API.Application.CQRS;
 using BlogApp.API.Application.Common;
 using BlogApp.API.Core.Entities;
 using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using FluentValidation;
 using AutoRegister;
+using BlogApp.API.Application.Features.Blog.DTOs;
+using AutoMapper;
 
 namespace BlogApp.API.Application.Features.Blog.Commands;
 
@@ -14,26 +15,28 @@ public record CreateBlogPostCommand(
     int CategoryId,
     List<int> TagIds,
     string AuthorId
-) : ICommand<BaseResponse<BlogPost>>;
+) : ICommand<BaseResponse<BlogPostDTO>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class CreateBlogPostCommandHandler : ICommandHandler<CreateBlogPostCommand, BaseResponse<BlogPost>>
+public class CreateBlogPostCommandHandler : ICommandHandler<CreateBlogPostCommand, BaseResponse<BlogPostDTO>>
 {
     private readonly ICommandUnitOfWork _unitOfWork;
     private readonly IOutboxService _outboxService;
+    private readonly IMapper _mapper;
 
-    public CreateBlogPostCommandHandler(IUnitOfWorkFactory unitOfWorkFactory, IOutboxService outboxService)
+    public CreateBlogPostCommandHandler(IUnitOfWorkFactory unitOfWorkFactory, IOutboxService outboxService, IMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateCommandUnitOfWork();
         _outboxService = outboxService;
+        _mapper = mapper;
     }
 
-    public async Task<BaseResponse<BlogPost>> HandleAsync(CreateBlogPostCommand command, CancellationToken cancellationToken = default)
+    public async Task<BaseResponse<BlogPostDTO>> HandleAsync(CreateBlogPostCommand command, CancellationToken cancellationToken = default)
     {
         var category = await _unitOfWork.Repository<Category>().GetByIdAsync(command.CategoryId);
         if (category == null)
         {
-            return BaseResponse<BlogPost>.NotFound($"Category with ID {command.CategoryId} not found");
+            return BaseResponse<BlogPostDTO>.NotFound($"Category with ID {command.CategoryId} not found");
         }
 
         var tags = new List<Tag>();
@@ -42,7 +45,7 @@ public class CreateBlogPostCommandHandler : ICommandHandler<CreateBlogPostComman
             var tag = await _unitOfWork.Repository<Tag>().GetByIdAsync(tagId);
             if (tag == null)
             {
-                return BaseResponse<BlogPost>.NotFound($"Tag with ID {tagId} not found");
+                return BaseResponse<BlogPostDTO>.NotFound($"Tag with ID {tagId} not found");
             }
             tags.Add(tag);
         }
@@ -67,40 +70,12 @@ public class CreateBlogPostCommandHandler : ICommandHandler<CreateBlogPostComman
                 BlogPostId = blogPost.Id,
                 TagId = tag.Id
             };
-            
             await _unitOfWork.Repository<BlogPostTag>().AddAsync(blogPostTag);
         }
 
         await _unitOfWork.SaveChangesAsync();
         await _outboxService.AddAsync(nameof(CreateBlogPostCommand), command, cancellationToken);
-
-        return BaseResponse<BlogPost>.Success(blogPost, "Blog post created successfully");
-    }
-}
-
-[Register(ServiceLifetime.Scoped)]
-public class CreateBlogPostCommandValidator : AbstractValidator<CreateBlogPostCommand>
-{
-    public CreateBlogPostCommandValidator()
-    {
-        RuleFor(x => x.Title)
-            .NotEmpty().WithMessage("Title is required")
-            .MaximumLength(200).WithMessage("Title cannot exceed 200 characters");
-
-        RuleFor(x => x.Content)
-            .NotEmpty().WithMessage("Content is required");
-
-        RuleFor(x => x.Slug)
-            .NotEmpty().WithMessage("Slug is required")
-            .Matches("^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Slug must be URL-friendly");
-
-        RuleFor(x => x.CategoryId)
-            .GreaterThan(0).WithMessage("Category ID must be greater than 0");
-
-        RuleFor(x => x.AuthorId)
-            .NotEmpty().WithMessage("Author ID is required");
-
-        RuleFor(x => x.TagIds)
-            .NotNull().WithMessage("Tag IDs cannot be null");
+        var blogPostDto = _mapper.Map<BlogPostDTO>(blogPost);
+        return BaseResponse<BlogPostDTO>.Success(blogPostDto, "Blog post created successfully");
     }
 } 

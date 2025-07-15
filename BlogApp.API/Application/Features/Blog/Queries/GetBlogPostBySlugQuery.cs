@@ -2,47 +2,40 @@ using BlogApp.API.Application.CQRS;
 using BlogApp.API.Application.Common;
 using BlogApp.API.Core.Entities;
 using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using FluentValidation;
 using AutoRegister;
+using BlogApp.API.Application.Features.Blog.DTOs;
+using AutoMapper;
 
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
 public record GetBlogPostBySlugQuery(
     string Slug,
     bool IncludeUnpublished = false
-) : IQuery<BaseResponse<BlogPost?>>;
+) : IQuery<BaseResponse<BlogPostDTO>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class GetBlogPostBySlugQueryHandler : IQueryHandler<GetBlogPostBySlugQuery, BaseResponse<BlogPost?>>
+public class GetBlogPostBySlugQueryHandler : IQueryHandler<GetBlogPostBySlugQuery, BaseResponse<BlogPostDTO>>
 {
     private readonly IQueryUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public GetBlogPostBySlugQueryHandler(IUnitOfWorkFactory unitOfWorkFactory)
+    public GetBlogPostBySlugQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateQueryUnitOfWork();
+        _mapper = mapper;
     }
 
-    public async Task<BaseResponse<BlogPost?>> HandleAsync(GetBlogPostBySlugQuery query, CancellationToken cancellationToken = default)
+    public async Task<BaseResponse<BlogPostDTO>> HandleAsync(GetBlogPostBySlugQuery query, CancellationToken cancellationToken = default)
     {
         var posts = await _unitOfWork.Repository<BlogPost>().GetAllAsync();
         var blogPost = posts.FirstOrDefault(p => p.Slug == query.Slug);
         
         if (blogPost == null)
         {
-            return BaseResponse<BlogPost?>.NotFound($"Blog post with slug '{query.Slug}' not found");
+            return BaseResponse<BlogPostDTO>.NotFound($"Blog post with slug '{query.Slug}' not found");
         }
 
-        return BaseResponse<BlogPost?>.Success(blogPost, "Blog post retrieved successfully");
-    }
-}
-
-[Register(ServiceLifetime.Scoped)]
-public class GetBlogPostBySlugQueryValidator : AbstractValidator<GetBlogPostBySlugQuery>
-{
-    public GetBlogPostBySlugQueryValidator()
-    {
-        RuleFor(x => x.Slug)
-            .NotEmpty().WithMessage("Slug is required")
-            .Matches("^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Slug must be URL-friendly");
+        var blogPostDto = _mapper.Map<BlogPostDTO>(blogPost);
+        return BaseResponse<BlogPostDTO>.Success(blogPostDto, "Blog post retrieved successfully");
     }
 } 

@@ -2,8 +2,9 @@ using BlogApp.API.Application.CQRS;
 using BlogApp.API.Application.Common;
 using BlogApp.API.Core.Entities;
 using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using FluentValidation;
 using AutoRegister;
+using BlogApp.API.Application.Features.Blog.DTOs;
+using AutoMapper;
 
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
@@ -14,45 +15,24 @@ public record GetBlogPostsQuery(
     string? Tag = null,
     string? SearchTerm = null,
     bool IncludeUnpublished = false
-) : IQuery<BaseResponse<List<BlogPost>>>;
+) : IQuery<BaseResponse<List<BlogPostDTO>>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class GetBlogPostsQueryHandler : IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPost>>>
+public class GetBlogPostsQueryHandler : IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>
 {
     private readonly IQueryUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public GetBlogPostsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory)
+    public GetBlogPostsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateQueryUnitOfWork();
+        _mapper = mapper;
     }
 
-    public async Task<BaseResponse<List<BlogPost>>> HandleAsync(GetBlogPostsQuery query, CancellationToken cancellationToken = default)
+    public async Task<BaseResponse<List<BlogPostDTO>>> HandleAsync(GetBlogPostsQuery query, CancellationToken cancellationToken = default)
     {
         var posts = await _unitOfWork.Repository<BlogPost>().GetAllAsync();
-
-        return BaseResponse<List<BlogPost>>.Success(posts.ToList(), "Blog posts retrieved successfully");
-    }
-}
-
-[Register(ServiceLifetime.Scoped)]
-public class GetBlogPostsQueryValidator : AbstractValidator<GetBlogPostsQuery>
-{
-    public GetBlogPostsQueryValidator()
-    {
-        RuleFor(x => x.Page)
-            .GreaterThan(0).WithMessage("Page must be greater than 0");
-
-        RuleFor(x => x.PageSize)
-            .GreaterThan(0).WithMessage("Page size must be greater than 0")
-            .LessThanOrEqualTo(100).WithMessage("Page size cannot exceed 100");
-
-        RuleFor(x => x.Category)
-            .MaximumLength(100).WithMessage("Category name cannot exceed 100 characters");
-
-        RuleFor(x => x.Tag)
-            .MaximumLength(100).WithMessage("Tag name cannot exceed 100 characters");
-
-        RuleFor(x => x.SearchTerm)
-            .MaximumLength(200).WithMessage("Search term cannot exceed 200 characters");
+        var postDtos = posts.Select(p => _mapper.Map<BlogPostDTO>(p)).ToList();
+        return BaseResponse<List<BlogPostDTO>>.Success(postDtos, "Blog posts retrieved successfully");
     }
 } 

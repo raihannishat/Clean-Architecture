@@ -1,11 +1,13 @@
 namespace BlogApp.API.Application.Features.Comment.DTOs;
 
-public class CommentDTO
+public record CommentDTO(
+    int Id,
+    string Content,
+    string AuthorName,
+    string AuthorProfileImageUrl,
+    int? ParentCommentId,
+    DateTime CreatedAt
+)
 {
-    public int Id { get; set; }
-    public string Content { get; set; } = string.Empty;
-    public string AuthorName { get; set; } = string.Empty;
-    public string AuthorProfileImageUrl { get; set; } = string.Empty;
-    public int? ParentCommentId { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public CommentDTO() : this(0, string.Empty, string.Empty, string.Empty, null, default) {}
 } 
