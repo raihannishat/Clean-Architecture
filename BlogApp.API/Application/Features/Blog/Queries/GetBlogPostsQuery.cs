@@ -7,15 +7,14 @@ using AutoRegister;
 
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
-public class GetBlogPostsQuery : IQuery<BaseResponse<List<BlogPost>>>
-{
-    public int Page { get; set; } = 1;
-    public int PageSize { get; set; } = 10;
-    public string? Category { get; set; }
-    public string? Tag { get; set; }
-    public string? SearchTerm { get; set; }
-    public bool IncludeUnpublished { get; set; } = false;
-}
+public record GetBlogPostsQuery(
+    int Page = 1,
+    int PageSize = 10,
+    string? Category = null,
+    string? Tag = null,
+    string? SearchTerm = null,
+    bool IncludeUnpublished = false
+) : IQuery<BaseResponse<List<BlogPost>>>;
 
 [Register(ServiceLifetime.Scoped)]
 public class GetBlogPostsQueryHandler : IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPost>>>

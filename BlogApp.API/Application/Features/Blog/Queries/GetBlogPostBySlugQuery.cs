@@ -7,11 +7,10 @@ using AutoRegister;
 
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
-public class GetBlogPostBySlugQuery : IQuery<BaseResponse<BlogPost?>>
-{
-    public string Slug { get; set; } = string.Empty;
-    public bool IncludeUnpublished { get; set; } = false;
-}
+public record GetBlogPostBySlugQuery(
+    string Slug,
+    bool IncludeUnpublished = false
+) : IQuery<BaseResponse<BlogPost?>>;
 
 [Register(ServiceLifetime.Scoped)]
 public class GetBlogPostBySlugQueryHandler : IQueryHandler<GetBlogPostBySlugQuery, BaseResponse<BlogPost?>>

@@ -6,11 +6,7 @@ using AutoRegister;
 
 namespace BlogApp.API.Application.Features.Auth.Commands;
 
-public class LoginCommand : ICommand<BaseResponse<LoginResponse>>
-{
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-}
+public record LoginCommand(string Email, string Password) : ICommand<BaseResponse<LoginResponse>>;
 
 [Register(ServiceLifetime.Scoped)]
 public class LoginCommandHandler : ICommandHandler<LoginCommand, BaseResponse<LoginResponse>>

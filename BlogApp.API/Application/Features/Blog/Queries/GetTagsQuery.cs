@@ -7,10 +7,9 @@ using AutoRegister;
 
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
-public class GetTagsQuery : IQuery<BaseResponse<List<Tag>>>
-{
-    public bool IncludeInactive { get; set; } = false;
-}
+public record GetTagsQuery(
+    bool IncludeInactive = false
+) : IQuery<BaseResponse<List<Tag>>>;
 
 [Register(ServiceLifetime.Scoped)]
 public class GetTagsQueryHandler : IQueryHandler<GetTagsQuery, BaseResponse<List<Tag>>>

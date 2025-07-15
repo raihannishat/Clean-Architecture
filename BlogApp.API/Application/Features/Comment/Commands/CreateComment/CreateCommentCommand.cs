@@ -7,13 +7,12 @@ using AutoRegister;
 
 namespace BlogApp.API.Application.Features.Comment.Commands;
 
-public class CreateCommentCommand : ICommand<BaseResponse<Core.Entities.Comment>>
-{
-    public string Content { get; set; } = string.Empty;
-    public int BlogPostId { get; set; }
-    public string AuthorId { get; set; } = string.Empty;
-    public int? ParentCommentId { get; set; }
-}
+public record CreateCommentCommand(
+    string Content,
+    int BlogPostId,
+    string AuthorId,
+    int? ParentCommentId
+) : ICommand<BaseResponse<Core.Entities.Comment>>;
 
 [Register(ServiceLifetime.Scoped)]
 public class CreateCommentCommandHandler : ICommandHandler<CreateCommentCommand, BaseResponse<Core.Entities.Comment>>

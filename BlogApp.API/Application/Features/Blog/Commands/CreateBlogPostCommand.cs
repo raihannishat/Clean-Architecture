@@ -7,15 +7,14 @@ using AutoRegister;
 
 namespace BlogApp.API.Application.Features.Blog.Commands;
 
-public class CreateBlogPostCommand : ICommand<BaseResponse<BlogPost>>
-{
-    public string Title { get; set; } = string.Empty;
-    public string Content { get; set; } = string.Empty;
-    public string Slug { get; set; } = string.Empty;
-    public int CategoryId { get; set; }
-    public List<int> TagIds { get; set; } = new();
-    public string AuthorId { get; set; } = string.Empty;
-}
+public record CreateBlogPostCommand(
+    string Title,
+    string Content,
+    string Slug,
+    int CategoryId,
+    List<int> TagIds,
+    string AuthorId
+) : ICommand<BaseResponse<BlogPost>>;
 
 [Register(ServiceLifetime.Scoped)]
 public class CreateBlogPostCommandHandler : ICommandHandler<CreateBlogPostCommand, BaseResponse<BlogPost>>

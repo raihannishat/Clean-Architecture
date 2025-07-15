@@ -8,11 +8,10 @@ using AutoRegister;
 
 namespace BlogApp.API.Application.Features.Comment.Queries;
 
-public class GetCommentsQuery : IQuery<BaseResponse<List<CommentDTO>>>
-{
-    public int BlogPostId { get; set; }
-    public bool IncludeReplies { get; set; } = true;
-}
+public record GetCommentsQuery(
+    int BlogPostId,
+    bool IncludeReplies = true
+) : IQuery<BaseResponse<List<CommentDTO>>>;
 
 [Register(ServiceLifetime.Scoped)]
 public class GetCommentsQueryHandler : IQueryHandler<GetCommentsQuery, BaseResponse<List<CommentDTO>>>
