@@ -23,6 +23,18 @@ public class GetBlogPostsQueryHandler : BlogApp.API.Application.CQRS.IQueryHandl
 
     public async Task<BaseResponse<List<BlogPostDTO>>> HandleAsync(GetBlogPostsQuery query, CancellationToken cancellationToken = default)
     {
+        if (query == null)
+        {
+            return BaseResponse<List<BlogPostDTO>>.ValidationError(["Query cannot be null"]);
+        }
+        if (query.Page <= 0)
+        {
+            return BaseResponse<List<BlogPostDTO>>.ValidationError(["Page must be greater than 0"]);
+        }
+        if (query.PageSize <= 0)
+        {
+            return BaseResponse<List<BlogPostDTO>>.ValidationError(["Page size must be greater than 0"]);
+        }
         var posts = await _unitOfWork.Repository<BlogPost>().GetAllAsync();
         var postDtos = posts.Select(p => _mapper.Map<BlogPostDTO>(p)).ToList();
         return BaseResponse<List<BlogPostDTO>>.Success(postDtos, "Blog posts retrieved successfully");
