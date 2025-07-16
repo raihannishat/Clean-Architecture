@@ -162,4 +162,101 @@ components:
         statusCode:
           type: integer
           format: int32
+```
+
+## 6. Practical Examples
+
+Below are practical examples of how to use the Dispatcher endpoint with real data.
+
+### Example 1: GetBlogPosts Query
+
+**Request:**
+```json
+{
+  "OperationName": "GetBlogPosts",
+  "Data": "{\"Page\":1,\"PageSize\":5}"
+}
+```
+
+**cURL:**
+```bash
+curl -X POST http://localhost:5000/api/dispatcher \
+  -H "Content-Type: application/json" \
+  -d '{
+    "OperationName": "GetBlogPosts",
+    "Data": "{\"Page\":1,\"PageSize\":5}"
+  }'
+```
+
+**Success Response:**
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully",
+  "data": [
+    {
+      "id": 1,
+      "title": "First Blog Post",
+      "content": "Hello World",
+      "slug": "first-blog-post",
+      "authorName": "Admin",
+      "categoryName": "General",
+      "tags": ["C#", "API"]
+    },
+    {
+      "id": 2,
+      "title": "Second Blog Post",
+      "content": "Another post",
+      "slug": "second-blog-post",
+      "authorName": "Admin",
+      "categoryName": "General",
+      "tags": [".NET", "Backend"]
+    }
+    // ... up to PageSize
+  ],
+  "errors": null,
+  "statusCode": 200
+}
+```
+
+### Example 2: Validation Error
+
+**Request:**
+```json
+{
+  "OperationName": "GetBlogPosts",
+  "Data": "{\"Page\":0,\"PageSize\":5}"
+}
+```
+
+**Response:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "data": [ "Page must be greater than 0" ],
+  "errors": null,
+  "statusCode": 400
+}
+```
+
+### Example 3: Operation Not Found
+
+**Request:**
+```json
+{
+  "OperationName": "UnknownOperation",
+  "Data": "{}"
+}
+```
+
+**Response:**
+```json
+{
+  "success": false,
+  "message": "Operation 'UnknownOperation' not found",
+  "data": null,
+  "errors": null,
+  "statusCode": 404
+}
 ``` 
