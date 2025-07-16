@@ -1,0 +1,9 @@
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\bin\Debug\net9.0\.msCoverageSourceRootsMapping_BlogApp.IntegrationTests
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\bin\Debug\net9.0\CoverletSourceRootsMapping_BlogApp.IntegrationTests
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\obj\Debug\net9.0\BlogApp.IntegrationTests.csproj.AssemblyReference.cache
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\obj\Debug\net9.0\MvcTestingAppManifest.json
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\obj\Debug\net9.0\BlogApp.IntegrationTests.GeneratedMSBuildEditorConfig.editorconfig
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\obj\Debug\net9.0\BlogApp.IntegrationTests.AssemblyInfoInputs.cache
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\obj\Debug\net9.0\BlogApp.IntegrationTests.AssemblyInfo.cs
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\obj\Debug\net9.0\BlogApp.IntegrationTests.csproj.CoreCompileInputs.cache
+D:\GitHub\Clean-Architecture\Tests\BlogApp.IntegrationTests\obj\Debug\net9.0\BlogApp.IntegrationTests.sourcelink.json

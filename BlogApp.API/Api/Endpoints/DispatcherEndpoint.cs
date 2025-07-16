@@ -119,21 +119,35 @@ public class DispatcherEndpoint : Endpoint<DispatcherRequest, DispatcherResponse
         }
     }
 
-    private Type? FindOperationType(string operationName)
+    private static readonly Dictionary<string, Type> OperationTypeCache = BuildOperationTypeCache();
+
+    private static Dictionary<string, Type> BuildOperationTypeCache()
     {
+        var dict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        var commandTypeName = operationName + "Command";
-        var queryTypeName = operationName + "Query";
         foreach (var assembly in assemblies)
         {
-            var commandType = assembly.GetTypes().FirstOrDefault(t => t.Name == commandTypeName);
-            if (commandType != null)
-                return commandType;
-            var queryType = assembly.GetTypes().FirstOrDefault(t => t.Name == queryTypeName);
-            if (queryType != null)
-                return queryType;
+            foreach (var type in assembly.GetTypes())
+            {
+                if (!type.IsClass && !type.IsValueType) continue;
+                if (type.Name.EndsWith("Command") || type.Name.EndsWith("Query"))
+                {
+                    var opName = type.Name;
+                    if (opName.EndsWith("Command"))
+                        opName = opName.Substring(0, opName.Length - "Command".Length);
+                    else if (opName.EndsWith("Query"))
+                        opName = opName.Substring(0, opName.Length - "Query".Length);
+                    if (!dict.ContainsKey(opName))
+                        dict[opName] = type;
+                }
+            }
         }
-        return null;
+        return dict;
+    }
+
+    private Type? FindOperationType(string operationName)
+    {
+        return OperationTypeCache.TryGetValue(operationName, out var type) ? type : null;
     }
 
     private Type? GetResponseType(Type operationType)

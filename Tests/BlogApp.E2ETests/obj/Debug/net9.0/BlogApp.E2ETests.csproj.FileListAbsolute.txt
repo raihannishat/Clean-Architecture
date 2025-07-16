@@ -1,0 +1,8 @@
+D:\GitHub\Clean-Architecture\Tests\BlogApp.E2ETests\bin\Debug\net9.0\.msCoverageSourceRootsMapping_BlogApp.E2ETests
+D:\GitHub\Clean-Architecture\Tests\BlogApp.E2ETests\bin\Debug\net9.0\CoverletSourceRootsMapping_BlogApp.E2ETests
+D:\GitHub\Clean-Architecture\Tests\BlogApp.E2ETests\obj\Debug\net9.0\BlogApp.E2ETests.csproj.AssemblyReference.cache
+D:\GitHub\Clean-Architecture\Tests\BlogApp.E2ETests\obj\Debug\net9.0\BlogApp.E2ETests.GeneratedMSBuildEditorConfig.editorconfig
+D:\GitHub\Clean-Architecture\Tests\BlogApp.E2ETests\obj\Debug\net9.0\BlogApp.E2ETests.AssemblyInfoInputs.cache
+D:\GitHub\Clean-Architecture\Tests\BlogApp.E2ETests\obj\Debug\net9.0\BlogApp.E2ETests.AssemblyInfo.cs
+D:\GitHub\Clean-Architecture\Tests\BlogApp.E2ETests\obj\Debug\net9.0\BlogApp.E2ETests.csproj.CoreCompileInputs.cache
+D:\GitHub\Clean-Architecture\Tests\BlogApp.E2ETests\obj\Debug\net9.0\BlogApp.E2ETests.sourcelink.json
