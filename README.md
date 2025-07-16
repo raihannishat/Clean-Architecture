@@ -130,33 +130,21 @@ The applications come with pre-configured users:
   - Password: `Demo123!`
   - Role: User
 
-## API Endpoints
+## API Documentation & Usage
 
-The application uses a **Single Dispatcher Endpoint** pattern where all operations are handled through one dynamic endpoint.
+All API usage, dispatcher pattern, request/response format, and operation mapping documentation are now located in the `Docs/` directory at the project root. Please refer to the following files for detailed guides and examples:
+
+- `Docs/API_TESTING_GUIDE.md` — End-to-end API testing and usage examples
+- `Docs/DISPATCHER_USAGE_EXAMPLES.md` — Single dispatcher endpoint usage and request/response format
+- `Docs/GENERIC_RESPONSE_GUIDE.md` — Generic response structure and error handling
+- `Docs/PREFIX_BASED_DISPATCHER_USAGE.md` — Operation/class name mapping and dispatcher conventions
+- `Docs/BASERESPONSE_MIGRATION_SUMMARY.md` — Migration summary and response consistency
 
 ### Dispatcher Endpoint
-- `POST /api/dispatcher` - Dynamic operation dispatcher
-
-### Available Operations
-
-#### Authentication Operations
-- `Login` - User login
-- `RegisterCommand` - User registration
-
-#### Blog Operations
-- `CreateBlogPost` - Create new blog post
-- `GetBlogPosts` - Get all published posts
-- `GetBlogPostBySlug` - Get post by slug
-- `GetCategoriesQuery` - Get all categories
-- `GetTagsQuery` - Get all tags
-- `SearchPostsQuery` - Search posts
-
-#### Comment Operations
-- `CreateCommentCommand` - Create new comment
-- `GetCommentsQuery` - Get comments for a post
+- `POST /api/dispatcher` — Dynamic operation dispatcher (see Docs/DISPATCHER_USAGE_EXAMPLES.md)
 
 ### Request Format
-All requests use the same format:
+All requests use the same format (see Docs/DISPATCHER_USAGE_EXAMPLES.md):
 ```json
 {
   "operation": "OperationName",
@@ -175,46 +163,25 @@ Authorization: Bearer {your-jwt-token}
 ## Project Structure
 
 ```
-example/
+Clean-Architecture/
 ├── BlogApp.sln                 # Solution file
-├── BlogApp.API/               # Web API Application
+├── BlogApp.API/                # Web API Application
 │   ├── Api/                   # API Layer
-│   │   ├── Configuration/     # FastEndpoints Configuration
-│   │   └── Endpoints/         # API Endpoints
 │   ├── Application/           # Application Layer
-│   │   ├── CQRS/             # CQRS Implementation
-│   │   │   ├── Commands/     # Command Handlers
-│   │   │   ├── Handlers/     # Query Handlers
-│   │   │   ├── ICommand.cs   # Command Interface
-│   │   │   ├── IQuery.cs     # Query Interface
-│   │   │   └── Mediator.cs   # Mediator Implementation
-│   │   └── Features/         # Feature Modules
-│   │       ├── Auth/         # Authentication
-│   │       ├── Blog/         # Blog Management
-│   │       └── Comment/      # Comment System
-│   ├── Core/                 # Core Layer
-│   │   ├── Entities/         # Domain Entities
-│   │   ├── Exceptions/       # Custom Exceptions
-│   │   └── Interfaces/       # Core Interfaces
-│   └── Infrastructure/       # Infrastructure Layer
-│       ├── Persistence/      # Data Access
-│       │   ├── Contexts/     # DbContexts
-│       │   ├── Repositories/ # Repository Pattern
-│       │   ├── UnitOfWork/   # Unit of Work Pattern
-│       │   └── Factories/    # Factory Pattern
-│       └── Services/         # External Services
-└── BlogApp-Angular/          # Angular Frontend
-    ├── src/
-    │   ├── app/
-    │   │   ├── features/     # Feature Modules
-    │   │   │   ├── auth/     # Authentication
-    │   │   │   └── blog/     # Blog Management
-    │   │   ├── models/       # TypeScript Models
-    │   │   ├── services/     # Angular Services
-    │   │   └── interceptors/ # HTTP Interceptors
-    │   └── styles.scss       # Global Styles
-    ├── package.json          # Dependencies
-    └── angular.json          # Angular Configuration
+│   ├── Core/                  # Core Layer
+│   ├── Infrastructure/        # Infrastructure Layer
+│   └── ...
+├── BlogApp-Angular/            # Angular Frontend
+│   ├── src/
+│   └── ...
+├── Docs/                       # All API and usage documentation
+│   ├── API_TESTING_GUIDE.md
+│   ├── DISPATCHER_USAGE_EXAMPLES.md
+│   ├── GENERIC_RESPONSE_GUIDE.md
+│   ├── PREFIX_BASED_DISPATCHER_USAGE.md
+│   └── BASERESPONSE_MIGRATION_SUMMARY.md
+├── PROJECT_DOCUMENTATION.md    # Full project documentation
+└── README.md                   # This file
 ```
 
 ## Database Schema
@@ -236,62 +203,6 @@ example/
 - BlogPost → Comments (One-to-Many)
 - BlogPost ↔ Tags (Many-to-Many via BlogPostTag)
 - Comment → Replies (Self-referencing)
-
-## API Usage Examples
-
-### Login
-```bash
-curl -X POST "https://localhost:7001/api/dispatcher" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "operation": "Login",
-    "data": {
-      "email": "admin@blogapp.com",
-      "password": "Admin123!"
-    }
-  }'
-```
-
-### Get Posts
-```bash
-curl -X POST "https://localhost:7001/api/dispatcher" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer {your-jwt-token}" \
-  -d '{
-    "operation": "GetBlogPosts",
-    "data": {}
-  }'
-```
-
-### Create Post
-```bash
-curl -X POST "https://localhost:7001/api/dispatcher" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer {your-jwt-token}" \
-  -d '{
-    "operation": "CreateBlogPost",
-    "data": {
-      "title": "My New Post",
-      "content": "Post content here...",
-      "summary": "Brief summary",
-      "categoryId": 1,
-      "tagIds": [1, 2],
-      "isPublished": true
-    }
-  }'
-```
-
-### Get Post by Slug
-```bash
-curl -X POST "https://localhost:7001/api/dispatcher" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "operation": "GetBlogPostBySlug",
-    "data": {
-      "slug": "my-blog-post-slug"
-    }
-  }'
-```
 
 ## Customization
 

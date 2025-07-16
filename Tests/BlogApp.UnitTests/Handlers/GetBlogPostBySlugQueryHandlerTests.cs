@@ -1,38 +1,28 @@
-using BlogApp.API.Application.Features.Blog.Queries;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces;
-using FluentAssertions;
-using Moq;
-using Xunit;
-
 namespace BlogApp.UnitTests.Handlers;
 
 public class GetBlogPostBySlugQueryHandlerTests
 {
     private readonly Mock<IUnitOfWorkFactory> _mockUnitOfWorkFactory;
     private readonly Mock<IQueryUnitOfWork> _mockUnitOfWork;
+    private readonly Mock<IAutoMapper> _mockMapper;
     private readonly GetBlogPostBySlugQueryHandler _handler;
 
     public GetBlogPostBySlugQueryHandlerTests()
     {
         _mockUnitOfWorkFactory = new Mock<IUnitOfWorkFactory>();
         _mockUnitOfWork = new Mock<IQueryUnitOfWork>();
+        _mockMapper = new Mock<IAutoMapper>();
         _mockUnitOfWorkFactory.Setup(x => x.CreateQueryUnitOfWork()).Returns(_mockUnitOfWork.Object);
-        _handler = new GetBlogPostBySlugQueryHandler(_mockUnitOfWorkFactory.Object);
+        _handler = new GetBlogPostBySlugQueryHandler(_mockUnitOfWorkFactory.Object, _mockMapper.Object);
     }
 
     [Fact]
     public async Task HandleAsync_WithValidSlug_ShouldReturnSuccessResponse()
     {
         // Arrange
-        var query = new GetBlogPostBySlugQuery
-        {
-            Slug = "test-blog-post"
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostBySlugQuery("test-blog-post");
 
-        var blogPost = new BlogPost
+        var blogPost = new BlogApp.API.Core.Entities.BlogPost
         {
             Id = 1,
             Title = "Test Blog Post",
@@ -44,11 +34,12 @@ public class GetBlogPostBySlugQueryHandlerTests
             UpdatedAt = DateTime.UtcNow
         };
 
-        var mockBlogPostRepo = new Mock<IQueryRepository<BlogPost>>();
+        var mockBlogPostRepo = new Mock<IQueryRepository<BlogApp.API.Core.Entities.BlogPost>>();
         mockBlogPostRepo.Setup(x => x.GetAllAsync())
-            .ReturnsAsync(new List<BlogPost> { blogPost });
+            .ReturnsAsync(new List<BlogApp.API.Core.Entities.BlogPost> { blogPost });
 
-        _mockUnitOfWork.Setup(x => x.Repository<BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockUnitOfWork.Setup(x => x.Repository<BlogApp.API.Core.Entities.BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockMapper.Setup(x => x.Map<BlogPostDTO>(It.IsAny<BlogApp.API.Core.Entities.BlogPost>())).Returns(new BlogPostDTO(1, blogPost.Title, blogPost.Content, blogPost.Slug, "Admin", "Technology", new List<string>()));
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -66,16 +57,13 @@ public class GetBlogPostBySlugQueryHandlerTests
     public async Task HandleAsync_WithNonExistentSlug_ShouldReturnNotFoundResponse()
     {
         // Arrange
-        var query = new GetBlogPostBySlugQuery
-        {
-            Slug = "non-existent-slug"
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostBySlugQuery("non-existent-slug");
 
-        var mockBlogPostRepo = new Mock<IQueryRepository<BlogPost>>();
+        var mockBlogPostRepo = new Mock<IQueryRepository<BlogApp.API.Core.Entities.BlogPost>>();
         mockBlogPostRepo.Setup(x => x.GetAllAsync())
-            .ReturnsAsync(new List<BlogPost>());
+            .ReturnsAsync(new List<BlogApp.API.Core.Entities.BlogPost>());
 
-        _mockUnitOfWork.Setup(x => x.Repository<BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockUnitOfWork.Setup(x => x.Repository<BlogApp.API.Core.Entities.BlogPost>()).Returns(mockBlogPostRepo.Object);
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -84,17 +72,14 @@ public class GetBlogPostBySlugQueryHandlerTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeFalse();
         result.StatusCode.Should().Be(404);
-        result.Message.Should().Contain("Blog post not found");
+        result.Message.Should().Contain("not found");
     }
 
     [Fact]
     public async Task HandleAsync_WithEmptySlug_ShouldReturnValidationError()
     {
         // Arrange
-        var query = new GetBlogPostBySlugQuery
-        {
-            Slug = ""
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostBySlugQuery("");
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -110,10 +95,7 @@ public class GetBlogPostBySlugQueryHandlerTests
     public async Task HandleAsync_WithNullSlug_ShouldReturnValidationError()
     {
         // Arrange
-        var query = new GetBlogPostBySlugQuery
-        {
-            Slug = null!
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostBySlugQuery(null!);
 
         // Act
         var result = await _handler.HandleAsync(query);

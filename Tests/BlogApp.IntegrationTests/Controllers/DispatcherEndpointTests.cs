@@ -1,14 +1,3 @@
-using BlogApp.API.Api.Endpoints;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.Contexts;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net;
-using System.Text;
-using System.Text.Json;
-
 namespace BlogApp.IntegrationTests.Controllers;
 
 public class DispatcherEndpointTests : IClassFixture<WebApplicationFactory<BlogApp.API.TestHost>>

@@ -1,11 +1,3 @@
-using BlogApp.API.Application.CQRS;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using AutoRegister;
-using BlogApp.API.Application.Features.Blog.DTOs;
-using AutoMapper;
-
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
 public record GetBlogPostsQuery(
@@ -15,15 +7,15 @@ public record GetBlogPostsQuery(
     string? Tag = null,
     string? SearchTerm = null,
     bool IncludeUnpublished = false
-) : IQuery<BaseResponse<List<BlogPostDTO>>>;
+) : BlogApp.API.Application.CQRS.IQuery<BaseResponse<List<BlogPostDTO>>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class GetBlogPostsQueryHandler : IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>
+public class GetBlogPostsQueryHandler : BlogApp.API.Application.CQRS.IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>
 {
     private readonly IQueryUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly IAutoMapper _mapper;
 
-    public GetBlogPostsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
+    public GetBlogPostsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IAutoMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateQueryUnitOfWork();
         _mapper = mapper;

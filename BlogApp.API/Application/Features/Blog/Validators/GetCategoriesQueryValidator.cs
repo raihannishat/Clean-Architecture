@@ -1,7 +1,6 @@
-using FluentValidation;
-using AutoRegister;
 
-namespace BlogApp.API.Application.Features.Blog.Queries;
+
+namespace BlogApp.API.Application.Features.Blog.Validators;
 
 [Register(ServiceLifetime.Scoped)]
 public class GetCategoriesQueryValidator : AbstractValidator<GetCategoriesQuery>

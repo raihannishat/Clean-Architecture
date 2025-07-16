@@ -1,21 +1,18 @@
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Implementations;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using FluentAssertions;
-using Microsoft.Extensions.Configuration;
-using Moq;
-using Xunit;
-
 namespace BlogApp.UnitTests.Factories;
 
 public class UnitOfWorkFactoryTests
 {
     private readonly Mock<IConfiguration> _mockConfiguration;
+    private readonly Mock<BlogApp.API.Infrastructure.Persistence.Factories.IDbContextFactory> _mockDbContextFactory;
+    private readonly Mock<IServiceProvider> _mockServiceProvider;
     private readonly UnitOfWorkFactory _factory;
 
     public UnitOfWorkFactoryTests()
     {
         _mockConfiguration = new Mock<IConfiguration>();
-        _factory = new UnitOfWorkFactory(_mockConfiguration.Object);
+        _mockDbContextFactory = new Mock<BlogApp.API.Infrastructure.Persistence.Factories.IDbContextFactory>();
+        _mockServiceProvider = new Mock<IServiceProvider>();
+        _factory = new UnitOfWorkFactory(_mockDbContextFactory.Object, _mockServiceProvider.Object);
     }
 
     [Fact]

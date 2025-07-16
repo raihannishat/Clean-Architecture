@@ -1,15 +1,9 @@
-using BlogApp.API.Application.CQRS;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Interfaces;
-using FluentValidation;
-using AutoRegister;
-
 namespace BlogApp.API.Application.Features.Auth.Commands;
 
-public record LoginCommand(string Email, string Password) : ICommand<BaseResponse<LoginResponse>>;
+public record LoginCommand(string Email, string Password) : BlogApp.API.Application.CQRS.ICommand<BaseResponse<LoginResponse>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class LoginCommandHandler : ICommandHandler<LoginCommand, BaseResponse<LoginResponse>>
+public class LoginCommandHandler : BlogApp.API.Application.CQRS.ICommandHandler<LoginCommand, BaseResponse<LoginResponse>>
 {
     private readonly IAuthService _authService;
     private readonly IOutboxService _outboxService;
@@ -31,20 +25,5 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, BaseResponse<Lo
         }
         
         return BaseResponse<LoginResponse>.Unauthorized(result.Message);
-    }
-}
-
-[Register(ServiceLifetime.Scoped)]
-public class LoginCommandValidator : AbstractValidator<LoginCommand>
-{
-    public LoginCommandValidator()
-    {
-        RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required")
-            .EmailAddress().WithMessage("Invalid email format");
-
-        RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Password is required")
-            .MinimumLength(6).WithMessage("Password must be at least 6 characters");
     }
 } 

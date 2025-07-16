@@ -1,5 +1,3 @@
-using System;
-
 namespace BlogApp.API.Core.Entities
 {
     public class OutboxMessage

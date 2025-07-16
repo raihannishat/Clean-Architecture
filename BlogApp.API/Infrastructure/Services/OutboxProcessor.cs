@@ -1,14 +1,4 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.Contexts;
-using Microsoft.Extensions.DependencyInjection;
+
 
 namespace BlogApp.API.Infrastructure.Services
 {

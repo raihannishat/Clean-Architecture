@@ -1,7 +1,3 @@
-using BlogApp.API.Application.Features.Auth.Commands;
-using FluentAssertions;
-using Xunit;
-
 namespace BlogApp.UnitTests.Validators;
 
 public class LoginCommandValidatorTests
@@ -17,11 +13,10 @@ public class LoginCommandValidatorTests
     public void Validate_WithValidData_ShouldPass()
     {
         // Arrange
-        var command = new LoginCommand
-        {
-            Email = "test@example.com",
-            Password = "Password123!"
-        };
+        var command = new BlogApp.API.Application.Features.Auth.Commands.LoginCommand(
+            "john@example.com",
+            "password123"
+        );
 
         // Act
         var result = _validator.Validate(command);
@@ -35,11 +30,10 @@ public class LoginCommandValidatorTests
     public void Validate_WithEmptyEmail_ShouldFail()
     {
         // Arrange
-        var command = new LoginCommand
-        {
-            Email = "",
-            Password = "Password123!"
-        };
+        var command = new BlogApp.API.Application.Features.Auth.Commands.LoginCommand(
+            "",
+            "password123"
+        );
 
         // Act
         var result = _validator.Validate(command);
@@ -53,11 +47,10 @@ public class LoginCommandValidatorTests
     public void Validate_WithInvalidEmailFormat_ShouldFail()
     {
         // Arrange
-        var command = new LoginCommand
-        {
-            Email = "invalid-email",
-            Password = "Password123!"
-        };
+        var command = new BlogApp.API.Application.Features.Auth.Commands.LoginCommand(
+            "invalid-email",
+            "Password123!"
+        );
 
         // Act
         var result = _validator.Validate(command);
@@ -71,11 +64,10 @@ public class LoginCommandValidatorTests
     public void Validate_WithEmptyPassword_ShouldFail()
     {
         // Arrange
-        var command = new LoginCommand
-        {
-            Email = "test@example.com",
-            Password = ""
-        };
+        var command = new BlogApp.API.Application.Features.Auth.Commands.LoginCommand(
+            "john@example.com",
+            ""
+        );
 
         // Act
         var result = _validator.Validate(command);
@@ -89,11 +81,10 @@ public class LoginCommandValidatorTests
     public void Validate_WithShortPassword_ShouldFail()
     {
         // Arrange
-        var command = new LoginCommand
-        {
-            Email = "test@example.com",
-            Password = "123"
-        };
+        var command = new BlogApp.API.Application.Features.Auth.Commands.LoginCommand(
+            "test@example.com",
+            "123"
+        );
 
         // Act
         var result = _validator.Validate(command);

@@ -1,26 +1,19 @@
-using BlogApp.API.Application.CQRS;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using BlogApp.API.Application.Features.Comment.DTOs;
-using FluentValidation;
-using AutoRegister;
-using AutoMapper;
+
 
 namespace BlogApp.API.Application.Features.Comment.Queries;
 
 public record GetCommentsQuery(
     int BlogPostId,
     bool IncludeReplies = true
-) : IQuery<BaseResponse<List<CommentDTO>>>;
+) : BlogApp.API.Application.CQRS.IQuery<BaseResponse<List<CommentDTO>>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class GetCommentsQueryHandler : IQueryHandler<GetCommentsQuery, BaseResponse<List<CommentDTO>>>
+public class GetCommentsQueryHandler : BlogApp.API.Application.CQRS.IQueryHandler<GetCommentsQuery, BaseResponse<List<CommentDTO>>>
 {
     private readonly IQueryUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly IAutoMapper _mapper;
 
-    public GetCommentsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
+    public GetCommentsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IAutoMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateQueryUnitOfWork();
         _mapper = mapper;

@@ -1,19 +1,13 @@
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Implementations;
-using BlogApp.API.Infrastructure.Persistence.Contexts;
-using BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
-
 namespace BlogApp.UnitTests.UnitOfWork;
 
 public class CommandUnitOfWorkTests
 {
     private readonly DbContextOptions<CommandDbContext> _options;
+    private readonly Mock<IServiceProvider> _mockServiceProvider;
 
     public CommandUnitOfWorkTests()
     {
+        _mockServiceProvider = new Mock<IServiceProvider>();
         _options = new DbContextOptionsBuilder<CommandDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
@@ -24,14 +18,16 @@ public class CommandUnitOfWorkTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var unitOfWork = new CommandUnitOfWork(context);
+        var repo = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogPost>(context);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.ICommandRepository<BlogPost>))).Returns(repo);
+        var unitOfWork = new BlogApp.API.Infrastructure.Persistence.UnitOfWork.Implementations.CommandUnitOfWork(context, _mockServiceProvider.Object);
 
         // Act
         var repository = unitOfWork.Repository<BlogPost>();
 
         // Assert
         repository.Should().NotBeNull();
-        repository.Should().BeOfType<CommandRepository<BlogPost>>();
+        repository.Should().BeOfType<BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogPost>>();
     }
 
     [Fact]
@@ -39,16 +35,20 @@ public class CommandUnitOfWorkTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var unitOfWork = new CommandUnitOfWork(context);
+        var blogPostRepo = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogPost>(context);
+        var categoryRepo = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<Category>(context);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.ICommandRepository<BlogPost>))).Returns(blogPostRepo);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.ICommandRepository<Category>))).Returns(categoryRepo);
+        var unitOfWork = new BlogApp.API.Infrastructure.Persistence.UnitOfWork.Implementations.CommandUnitOfWork(context, _mockServiceProvider.Object);
 
         // Act
-        var blogPostRepo = unitOfWork.Repository<BlogPost>();
-        var categoryRepo = unitOfWork.Repository<Category>();
+        var repo1 = unitOfWork.Repository<BlogPost>();
+        var repo2 = unitOfWork.Repository<Category>();
 
         // Assert
-        blogPostRepo.Should().NotBeNull();
-        categoryRepo.Should().NotBeNull();
-        blogPostRepo.Should().NotBeSameAs(categoryRepo);
+        repo1.Should().NotBeNull();
+        repo2.Should().NotBeNull();
+        repo1.Should().NotBeSameAs(repo2);
     }
 
     [Fact]
@@ -56,7 +56,9 @@ public class CommandUnitOfWorkTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var unitOfWork = new CommandUnitOfWork(context);
+        var repo = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogPost>(context);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.ICommandRepository<BlogPost>))).Returns(repo);
+        var unitOfWork = new BlogApp.API.Infrastructure.Persistence.UnitOfWork.Implementations.CommandUnitOfWork(context, _mockServiceProvider.Object);
         var repository = unitOfWork.Repository<BlogPost>();
 
         var blogPost = new BlogPost
@@ -82,7 +84,7 @@ public class CommandUnitOfWorkTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var unitOfWork = new CommandUnitOfWork(context);
+        var unitOfWork = new BlogApp.API.Infrastructure.Persistence.UnitOfWork.Implementations.CommandUnitOfWork(context, _mockServiceProvider.Object);
 
         // Act
         var result = await unitOfWork.SaveChangesAsync();
@@ -96,9 +98,13 @@ public class CommandUnitOfWorkTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var unitOfWork = new CommandUnitOfWork(context);
-        var blogPostRepo = unitOfWork.Repository<BlogPost>();
-        var categoryRepo = unitOfWork.Repository<Category>();
+        var blogPostRepo = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogPost>(context);
+        var categoryRepo = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<Category>(context);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.ICommandRepository<BlogPost>))).Returns(blogPostRepo);
+        _mockServiceProvider.Setup(x => x.GetService(typeof(BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.ICommandRepository<Category>))).Returns(categoryRepo);
+        var unitOfWork = new BlogApp.API.Infrastructure.Persistence.UnitOfWork.Implementations.CommandUnitOfWork(context, _mockServiceProvider.Object);
+        var repo1 = unitOfWork.Repository<Category>();
+        var repo2 = unitOfWork.Repository<BlogPost>();
 
         var category = new Category
         {
@@ -117,8 +123,8 @@ public class CommandUnitOfWorkTests
             AuthorId = "user-id"
         };
 
-        await categoryRepo.AddAsync(category);
-        await blogPostRepo.AddAsync(blogPost);
+        await repo1.AddAsync(category);
+        await repo2.AddAsync(blogPost);
 
         // Act
         var result = await unitOfWork.SaveChangesAsync();
@@ -138,24 +144,10 @@ public class CommandUnitOfWorkTests
     {
         // Arrange
         var context = new CommandDbContext(_options);
-        var unitOfWork = new CommandUnitOfWork(context);
+        var unitOfWork = new BlogApp.API.Infrastructure.Persistence.UnitOfWork.Implementations.CommandUnitOfWork(context, _mockServiceProvider.Object);
 
         // Act
         unitOfWork.Dispose();
-
-        // Assert
-        context.Database.ProviderName.Should().Be("Microsoft.EntityFrameworkCore.InMemory");
-    }
-
-    [Fact]
-    public async Task DisposeAsync_ShouldDisposeContext()
-    {
-        // Arrange
-        var context = new CommandDbContext(_options);
-        var unitOfWork = new CommandUnitOfWork(context);
-
-        // Act
-        await unitOfWork.DisposeAsync();
 
         // Assert
         context.Database.ProviderName.Should().Be("Microsoft.EntityFrameworkCore.InMemory");

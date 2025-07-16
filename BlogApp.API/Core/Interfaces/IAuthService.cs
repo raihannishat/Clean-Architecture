@@ -1,5 +1,3 @@
-using BlogApp.API.Application.Common;
-
 namespace BlogApp.API.Core.Interfaces;
 
 public interface IAuthService

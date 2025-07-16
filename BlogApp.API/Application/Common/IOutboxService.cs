@@ -1,7 +1,7 @@
-namespace BlogApp.API.Application.Common
+namespace BlogApp.API.Application.Common;
+
+public interface IOutboxService
 {
-    public interface IOutboxService
-    {
-        Task AddAsync(string type, object payload, CancellationToken cancellationToken = default);
-    }
-} 
+    Task AddAsync(string type, object payload, CancellationToken cancellationToken = default);
+}
+ 

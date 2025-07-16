@@ -1,9 +1,5 @@
-using System.Reflection;
-using AutoRegister;
-
 namespace BlogApp.API.Application.CQRS;
 
-[Register(ServiceLifetime.Scoped)]
 public class Mediator : IMediator
 {
     private readonly IServiceProvider _serviceProvider;

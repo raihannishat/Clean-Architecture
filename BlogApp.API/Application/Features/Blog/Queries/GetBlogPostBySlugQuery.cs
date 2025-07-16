@@ -1,25 +1,14 @@
-using BlogApp.API.Application.CQRS;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using AutoRegister;
-using BlogApp.API.Application.Features.Blog.DTOs;
-using AutoMapper;
-
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
-public record GetBlogPostBySlugQuery(
-    string Slug,
-    bool IncludeUnpublished = false
-) : IQuery<BaseResponse<BlogPostDTO>>;
+public record GetBlogPostBySlugQuery(string Slug) : BlogApp.API.Application.CQRS.IQuery<BaseResponse<BlogPostDTO>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class GetBlogPostBySlugQueryHandler : IQueryHandler<GetBlogPostBySlugQuery, BaseResponse<BlogPostDTO>>
+public class GetBlogPostBySlugQueryHandler : BlogApp.API.Application.CQRS.IQueryHandler<GetBlogPostBySlugQuery, BaseResponse<BlogPostDTO>>
 {
     private readonly IQueryUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly IAutoMapper _mapper;
 
-    public GetBlogPostBySlugQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
+    public GetBlogPostBySlugQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IAutoMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateQueryUnitOfWork();
         _mapper = mapper;

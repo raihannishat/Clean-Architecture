@@ -8,16 +8,19 @@ This directory contains comprehensive tests for the BlogApp project, organized i
 Tests/
 ├── BlogApp.UnitTests/           # Unit Tests (xUnit)
 │   ├── Handlers/               # Command/Query Handler Tests
-│   │   ├── LoginCommandHandlerTests.cs
-│   │   └── CreateBlogPostCommandHandlerTests.cs
+│   ├── Validators/             # Validator Tests
+│   ├── Services/               # Service Tests
+│   ├── Repositories/           # Repository Tests
+│   ├── UnitOfWork/             # Unit of Work Tests
+│   ├── Factories/              # Factory Tests
+│   ├── CQRS/                   # Mediator/CQRS Tests
 │   └── BlogApp.UnitTests.csproj
 ├── BlogApp.IntegrationTests/    # Integration Tests
-│   ├── Controllers/            # API Endpoint Tests
-│   │   └── DispatcherEndpointTests.cs
+│   ├── Endpoints/              # API Endpoint Tests
+│   ├── Controllers/            # Dispatcher Endpoint Tests
 │   └── BlogApp.IntegrationTests.csproj
 ├── BlogApp.E2ETests/           # End-to-End Tests
 │   ├── UI/                     # UI Automation Tests
-│   │   └── BlogAppE2ETests.cs
 │   └── BlogApp.E2ETests.csproj
 └── README.md                   # This file
 ```
@@ -27,133 +30,31 @@ Tests/
 ### 1. Unit Tests (BlogApp.UnitTests)
 - **Framework**: xUnit
 - **Purpose**: Test individual components in isolation
-- **Coverage**: Command/Query handlers, services, utilities
+- **Coverage**: Command/Query handlers, validators, services, repositories, unit of work, CQRS
 - **Dependencies**: Moq (mocking), FluentAssertions (assertions)
-
-**Key Features:**
-- Mock external dependencies (UnitOfWork, UserManager)
-- Test business logic in isolation
-- Validate input/output behavior
-- Test error scenarios and edge cases
-
-**Example Test:**
-```csharp
-[Fact]
-public async Task HandleAsync_WithValidCredentials_ShouldReturnSuccessResponse()
-{
-    // Arrange
-    var command = new LoginCommand { Email = "test@example.com", Password = "Password123!" };
-    _mockUserManager.Setup(x => x.FindByEmailAsync(command.Email))
-        .ReturnsAsync(user);
-
-    // Act
-    var result = await _handler.HandleAsync(command);
-
-    // Assert
-    result.IsSuccess.Should().BeTrue();
-    result.Data.Should().NotBeNull();
-}
-```
 
 ### 2. Integration Tests (BlogApp.IntegrationTests)
 - **Framework**: xUnit + WebApplicationFactory
 - **Purpose**: Test API endpoints and database integration
-- **Coverage**: Dispatcher endpoint, database operations
+- **Coverage**: Dispatcher endpoint, database operations, authentication, BaseResponse structure
 - **Dependencies**: In-memory database, WebApplicationFactory
-
-**Key Features:**
-- Test complete API request/response cycles
-- Use in-memory database for fast execution
-- Test dispatcher endpoint functionality
-- Validate BaseResponse structure
-
-**Example Test:**
-```csharp
-[Fact]
-public async Task Dispatcher_WithValidLoginCommand_ShouldReturnSuccessResponse()
-{
-    // Arrange
-    var request = new { operation = "Login", data = new { email = "admin@blogapp.com", password = "Admin123!" } };
-    var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
-
-    // Act
-    var response = await _client.PostAsync("/api/dispatcher", content);
-
-    // Assert
-    response.StatusCode.Should().Be(HttpStatusCode.OK);
-    var result = JsonSerializer.Deserialize<DispatcherResponse>(await response.Content.ReadAsStringAsync());
-    result!.IsSuccess.Should().BeTrue();
-}
-```
 
 ### 3. End-to-End Tests (BlogApp.E2ETests)
 - **Framework**: xUnit + Selenium WebDriver
 - **Purpose**: Test complete user workflows
-- **Coverage**: Angular frontend + API integration
+- **Coverage**: Angular frontend + API integration, UI interactions, user journeys
 - **Dependencies**: Selenium WebDriver, Chrome browser
-
-**Key Features:**
-- Test complete user journeys
-- Validate frontend-backend integration
-- Test UI interactions and navigation
-- Verify real browser behavior
-
-**Example Test:**
-```csharp
-[Fact]
-public async Task UserCanLoginAndAccessBlogFeatures()
-{
-    // Arrange - Login via API
-    await LoginUser();
-
-    // Act - Navigate to Angular app
-    _driver.Navigate().GoToUrl(AngularBaseUrl);
-    _wait.Until(d => d.FindElement(By.TagName("app-root")));
-
-    // Assert - Verify successful login
-    _driver.Url.Should().NotBe(AngularBaseUrl);
-}
-```
-
-## 🚀 Running Tests
-
-### Prerequisites
-- .NET 8.0 SDK
-- Chrome browser (for E2E tests)
-- API and Angular applications running (for E2E tests)
-
-### Running All Tests
-```bash
-# From solution root
-dotnet test
-
-# Run specific test project
-dotnet test Tests/BlogApp.UnitTests/
-dotnet test Tests/BlogApp.IntegrationTests/
-dotnet test Tests/BlogApp.E2ETests/
-```
-
-### Running Tests with Coverage
-```bash
-# Install coverlet collector
-dotnet tool install --global coverlet.collector
-
-# Run tests with coverage
-dotnet test --collect:"XPlat Code Coverage"
-```
-
-### Running Tests in Parallel
-```bash
-# Run tests in parallel (faster execution)
-dotnet test --logger "console;verbosity=detailed" --maxcpucount:0
-```
 
 ## 📊 Test Coverage
 
 ### Unit Tests Coverage
-- **Command Handlers**: Login, Register, CreateBlogPost, CreateComment
-- **Query Handlers**: GetBlogPosts, GetBlogPostBySlug, GetCategories, GetTags
-- **Validation**: Input validation, business rule validation
+- **Command Handlers**: Login, Register, CreateBlogPost
+- **Query Handlers**: GetBlogPosts, GetBlogPostBySlug, GetCategories, GetTags, SearchPosts, GetComments
+- **Validation**: Input validation for all commands/queries (Login, Register, CreateBlogPost, GetBlogPosts, GetBlogPostBySlug, SearchPosts, GetComments)
+- **Services**: AuthService, BlogService
+- **Repositories**: CommandRepository, QueryRepository
+- **Unit of Work**: CommandUnitOfWork, QueryUnitOfWork
+- **CQRS**: Mediator pattern, handler dispatching
 - **Error Handling**: Exception scenarios, validation errors
 
 ### Integration Tests Coverage
@@ -167,6 +68,16 @@ dotnet test --logger "console;verbosity=detailed" --maxcpucount:0
 - **Blog Management**: View posts, create posts
 - **Navigation**: Page transitions and routing
 - **API Integration**: Frontend-backend communication
+
+## 📚 Related Documentation
+
+For API usage, dispatcher pattern, request/response format, and operation mapping, see the Docs/ directory at the project root:
+
+- `Docs/API_TESTING_GUIDE.md`
+- `Docs/DISPATCHER_USAGE_EXAMPLES.md`
+- `Docs/GENERIC_RESPONSE_GUIDE.md`
+- `Docs/PREFIX_BASED_DISPATCHER_USAGE.md`
+- `Docs/BASERESPONSE_MIGRATION_SUMMARY.md`
 
 ## 🛠️ Test Configuration
 

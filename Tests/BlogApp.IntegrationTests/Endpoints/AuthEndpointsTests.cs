@@ -1,12 +1,3 @@
-using BlogApp.API.Application.Features.Auth.Commands;
-using BlogApp.API.TestHost;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using Xunit;
-
 namespace BlogApp.IntegrationTests.Endpoints;
 
 public class AuthEndpointsTests : IClassFixture<WebApplicationFactory<Program>>

@@ -1,41 +1,30 @@
-using BlogApp.API.Application.Features.Blog.Queries;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces;
-using FluentAssertions;
-using Moq;
-using Xunit;
-
 namespace BlogApp.UnitTests.Handlers;
 
 public class GetBlogPostsQueryHandlerTests
 {
     private readonly Mock<IUnitOfWorkFactory> _mockUnitOfWorkFactory;
     private readonly Mock<IQueryUnitOfWork> _mockUnitOfWork;
+    private readonly Mock<IAutoMapper> _mockMapper;
     private readonly GetBlogPostsQueryHandler _handler;
 
     public GetBlogPostsQueryHandlerTests()
     {
         _mockUnitOfWorkFactory = new Mock<IUnitOfWorkFactory>();
         _mockUnitOfWork = new Mock<IQueryUnitOfWork>();
+        _mockMapper = new Mock<IAutoMapper>();
         _mockUnitOfWorkFactory.Setup(x => x.CreateQueryUnitOfWork()).Returns(_mockUnitOfWork.Object);
-        _handler = new GetBlogPostsQueryHandler(_mockUnitOfWorkFactory.Object);
+        _handler = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostsQueryHandler(_mockUnitOfWorkFactory.Object, _mockMapper.Object);
     }
 
     [Fact]
     public async Task HandleAsync_WithValidQuery_ShouldReturnSuccessResponse()
     {
         // Arrange
-        var query = new GetBlogPostsQuery
-        {
-            Page = 1,
-            PageSize = 10
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostsQuery(1, 10);
 
-        var blogPosts = new List<BlogPost>
+        var blogPosts = new List<BlogApp.API.Core.Entities.BlogPost>
         {
-            new()
+            new BlogApp.API.Core.Entities.BlogPost
             {
                 Id = 1,
                 Title = "First Blog Post",
@@ -45,7 +34,7 @@ public class GetBlogPostsQueryHandlerTests
                 AuthorId = "user-1",
                 CreatedAt = DateTime.UtcNow.AddDays(-1)
             },
-            new()
+            new BlogApp.API.Core.Entities.BlogPost
             {
                 Id = 2,
                 Title = "Second Blog Post",
@@ -57,11 +46,13 @@ public class GetBlogPostsQueryHandlerTests
             }
         };
 
-        var mockBlogPostRepo = new Mock<IQueryRepository<BlogPost>>();
+        var mockBlogPostRepo = new Mock<BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.IQueryRepository<BlogApp.API.Core.Entities.BlogPost>>();
         mockBlogPostRepo.Setup(x => x.GetAllAsync())
             .ReturnsAsync(blogPosts);
 
-        _mockUnitOfWork.Setup(x => x.Repository<BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockUnitOfWork.Setup(x => x.Repository<BlogApp.API.Core.Entities.BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockMapper.Setup(x => x.Map<BlogApp.API.Application.Features.Blog.DTOs.BlogPostDTO>(It.IsAny<BlogApp.API.Core.Entities.BlogPost>()))
+            .Returns((BlogApp.API.Core.Entities.BlogPost p) => new BlogApp.API.Application.Features.Blog.DTOs.BlogPostDTO(p.Id, p.Title, p.Content, p.Slug, p.AuthorId, "Category", new List<string>()));
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -79,14 +70,10 @@ public class GetBlogPostsQueryHandlerTests
     public async Task HandleAsync_WithPagination_ShouldReturnPaginatedResults()
     {
         // Arrange
-        var query = new GetBlogPostsQuery
-        {
-            Page = 2,
-            PageSize = 5
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostsQuery(2, 5);
 
         var allBlogPosts = Enumerable.Range(1, 15)
-            .Select(i => new BlogPost
+            .Select(i => new BlogApp.API.Core.Entities.BlogPost
             {
                 Id = i,
                 Title = $"Blog Post {i}",
@@ -98,11 +85,13 @@ public class GetBlogPostsQueryHandlerTests
             })
             .ToList();
 
-        var mockBlogPostRepo = new Mock<IQueryRepository<BlogPost>>();
+        var mockBlogPostRepo = new Mock<BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.IQueryRepository<BlogApp.API.Core.Entities.BlogPost>>();
         mockBlogPostRepo.Setup(x => x.GetAllAsync())
             .ReturnsAsync(allBlogPosts);
 
-        _mockUnitOfWork.Setup(x => x.Repository<BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockUnitOfWork.Setup(x => x.Repository<BlogApp.API.Core.Entities.BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockMapper.Setup(x => x.Map<BlogApp.API.Application.Features.Blog.DTOs.BlogPostDTO>(It.IsAny<BlogApp.API.Core.Entities.BlogPost>()))
+            .Returns((BlogApp.API.Core.Entities.BlogPost p) => new BlogApp.API.Application.Features.Blog.DTOs.BlogPostDTO(p.Id, p.Title, p.Content, p.Slug, p.AuthorId, "Category", new List<string>()));
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -118,17 +107,15 @@ public class GetBlogPostsQueryHandlerTests
     public async Task HandleAsync_WithNoBlogPosts_ShouldReturnEmptyList()
     {
         // Arrange
-        var query = new GetBlogPostsQuery
-        {
-            Page = 1,
-            PageSize = 10
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostsQuery(1, 10);
 
-        var mockBlogPostRepo = new Mock<IQueryRepository<BlogPost>>();
+        var mockBlogPostRepo = new Mock<BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.IQueryRepository<BlogApp.API.Core.Entities.BlogPost>>();
         mockBlogPostRepo.Setup(x => x.GetAllAsync())
-            .ReturnsAsync(new List<BlogPost>());
+            .ReturnsAsync(new List<BlogApp.API.Core.Entities.BlogPost>());
 
-        _mockUnitOfWork.Setup(x => x.Repository<BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockUnitOfWork.Setup(x => x.Repository<BlogApp.API.Core.Entities.BlogPost>()).Returns(mockBlogPostRepo.Object);
+        _mockMapper.Setup(x => x.Map<BlogApp.API.Application.Features.Blog.DTOs.BlogPostDTO>(It.IsAny<BlogApp.API.Core.Entities.BlogPost>()))
+            .Returns((BlogApp.API.Core.Entities.BlogPost p) => new BlogApp.API.Application.Features.Blog.DTOs.BlogPostDTO(p.Id, p.Title, p.Content, p.Slug, p.AuthorId, "Category", new List<string>()));
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -144,11 +131,7 @@ public class GetBlogPostsQueryHandlerTests
     public async Task HandleAsync_WithInvalidPage_ShouldReturnValidationError()
     {
         // Arrange
-        var query = new GetBlogPostsQuery
-        {
-            Page = 0,
-            PageSize = 10
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostsQuery(0, 10);
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -164,11 +147,7 @@ public class GetBlogPostsQueryHandlerTests
     public async Task HandleAsync_WithInvalidPageSize_ShouldReturnValidationError()
     {
         // Arrange
-        var query = new GetBlogPostsQuery
-        {
-            Page = 1,
-            PageSize = 0
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetBlogPostsQuery(1, 0);
 
         // Act
         var result = await _handler.HandleAsync(query);

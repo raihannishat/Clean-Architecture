@@ -1,10 +1,3 @@
-using FluentAssertions;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
-using System.Text.Json;
-using Xunit;
-
 namespace BlogApp.E2ETests.UI;
 
 public class BlogAppE2ETests : IDisposable

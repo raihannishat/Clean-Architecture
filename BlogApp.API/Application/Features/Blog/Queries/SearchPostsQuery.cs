@@ -1,11 +1,3 @@
-using BlogApp.API.Application.CQRS;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using AutoRegister;
-using BlogApp.API.Application.Features.Blog.DTOs;
-using AutoMapper;
-
 namespace BlogApp.API.Application.Features.Blog.Queries;
 
 public record SearchPostsQuery(
@@ -13,21 +5,21 @@ public record SearchPostsQuery(
     int Page = 1,
     int PageSize = 10,
     bool IncludeUnpublished = false
-) : IQuery<BaseResponse<List<BlogPostDTO>>>;
+) : BlogApp.API.Application.CQRS.IQuery<BaseResponse<List<BlogPostListDTO>>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class SearchPostsQueryHandler : IQueryHandler<SearchPostsQuery, BaseResponse<List<BlogPostDTO>>>
+public class SearchPostsQueryHandler : BlogApp.API.Application.CQRS.IQueryHandler<SearchPostsQuery, BaseResponse<List<BlogPostListDTO>>>
 {
     private readonly IQueryUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+    private readonly IAutoMapper _mapper;
 
-    public SearchPostsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
+    public SearchPostsQueryHandler(IUnitOfWorkFactory unitOfWorkFactory, IAutoMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateQueryUnitOfWork();
         _mapper = mapper;
     }
 
-    public async Task<BaseResponse<List<BlogPostDTO>>> HandleAsync(SearchPostsQuery query, CancellationToken cancellationToken = default)
+    public async Task<BaseResponse<List<BlogPostListDTO>>> HandleAsync(SearchPostsQuery query, CancellationToken cancellationToken = default)
     {
         var posts = await _unitOfWork.Repository<BlogPost>().GetAllAsync();
         var filteredPosts = posts.Where(p => 
@@ -41,7 +33,7 @@ public class SearchPostsQueryHandler : IQueryHandler<SearchPostsQuery, BaseRespo
             .Take(query.PageSize)
             .ToList();
 
-        var postDtos = pagedPosts.Select(p => _mapper.Map<BlogPostDTO>(p)).ToList();
-        return BaseResponse<List<BlogPostDTO>>.Success(postDtos, "Search completed successfully");
+        var postDtos = pagedPosts.Select(p => _mapper.Map<BlogPostListDTO>(p)).ToList();
+        return BaseResponse<List<BlogPostListDTO>>.Success(postDtos, "Search completed successfully");
     }
 } 

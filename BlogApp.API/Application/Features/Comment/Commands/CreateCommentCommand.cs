@@ -1,10 +1,4 @@
-using BlogApp.API.Application.CQRS;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using AutoRegister;
-using BlogApp.API.Application.Features.Comment.DTOs;
-using AutoMapper;
+
 
 namespace BlogApp.API.Application.Features.Comment.Commands;
 
@@ -13,16 +7,16 @@ public record CreateCommentCommand(
     int BlogPostId,
     string AuthorId,
     int? ParentCommentId
-) : ICommand<BaseResponse<CommentDTO>>;
+) : BlogApp.API.Application.CQRS.ICommand<BaseResponse<CommentDTO>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class CreateCommentCommandHandler : ICommandHandler<CreateCommentCommand, BaseResponse<CommentDTO>>
+public class CreateCommentCommandHandler : BlogApp.API.Application.CQRS.ICommandHandler<CreateCommentCommand, BaseResponse<CommentDTO>>
 {
     private readonly ICommandUnitOfWork _unitOfWork;
     private readonly IOutboxService _outboxService;
-    private readonly IMapper _mapper;
+    private readonly IAutoMapper _mapper;
 
-    public CreateCommentCommandHandler(IUnitOfWorkFactory unitOfWorkFactory, IOutboxService outboxService, IMapper mapper)
+    public CreateCommentCommandHandler(IUnitOfWorkFactory unitOfWorkFactory, IOutboxService outboxService, IAutoMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateCommandUnitOfWork();
         _outboxService = outboxService;

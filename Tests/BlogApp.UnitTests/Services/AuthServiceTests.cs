@@ -1,13 +1,3 @@
-using BlogApp.API.Application.Common;
-using BlogApp.API.Application.Features.Auth.Commands;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Core.Interfaces;
-using BlogApp.API.Infrastructure.Services;
-using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
-using Moq;
-using Xunit;
-
 namespace BlogApp.UnitTests.Services;
 
 public class AuthServiceTests
@@ -84,7 +74,7 @@ public class AuthServiceTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeFalse();
         result.StatusCode.Should().Be(401);
-        result.Message.Should().Contain("Invalid credentials");
+        result.Message.Should().Contain("Invalid email or password");
     }
 
     [Fact]
@@ -113,7 +103,7 @@ public class AuthServiceTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeFalse();
         result.StatusCode.Should().Be(401);
-        result.Message.Should().Contain("Invalid credentials");
+        result.Message.Should().Contain("Invalid email or password");
     }
 
     [Fact]
@@ -186,7 +176,7 @@ public class AuthServiceTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeFalse();
         result.StatusCode.Should().Be(400);
-        result.Message.Should().Contain("Email already exists");
+        result.Message.Should().Contain("User with this email already exists");
     }
 
     [Fact]
@@ -219,7 +209,7 @@ public class AuthServiceTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeFalse();
         result.StatusCode.Should().Be(400);
-        result.Message.Should().Contain("Username already exists");
+        result.Message.Should().Contain("Username is already taken");
     }
 
     [Fact]
@@ -276,6 +266,6 @@ public class AuthServiceTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeFalse();
         result.StatusCode.Should().Be(400);
-        result.Message.Should().Contain("User creation failed");
+        result.Message.Should().Contain("Registration failed");
     }
 } 

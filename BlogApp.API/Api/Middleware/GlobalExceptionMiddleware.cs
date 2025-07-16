@@ -1,8 +1,3 @@
-using Microsoft.AspNetCore.Http;
-using System.Net;
-using System.Text.Json;
-using BlogApp.API.Application.Common;
-
 namespace BlogApp.API.Api.Middleware;
 
 public class GlobalExceptionMiddleware

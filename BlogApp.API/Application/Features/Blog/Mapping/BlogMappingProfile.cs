@@ -1,6 +1,4 @@
-using AutoMapper;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Application.Features.Blog.DTOs;
+
 
 namespace BlogApp.API.Application.Features.Blog.Mapping
 {
@@ -10,7 +8,7 @@ namespace BlogApp.API.Application.Features.Blog.Mapping
         {
             CreateMap<BlogPost, BlogPostDTO>();
             CreateMap<BlogPost, BlogPostListDTO>();
-            CreateMap<Tag, TagDTO>();
+            CreateMap<Core.Entities.Tag, TagDTO>();
             CreateMap<Category, CategoryDTO>();
         }
     }

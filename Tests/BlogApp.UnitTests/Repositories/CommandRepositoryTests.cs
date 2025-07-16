@@ -1,10 +1,3 @@
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.Repositories.Implementations;
-using BlogApp.API.Infrastructure.Persistence.Contexts;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using Xunit;
-
 namespace BlogApp.UnitTests.Repositories;
 
 public class CommandRepositoryTests
@@ -23,8 +16,8 @@ public class CommandRepositoryTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var repository = new CommandRepository<BlogPost>(context);
-        var blogPost = new BlogPost
+        var repository = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogApp.API.Core.Entities.BlogPost>(context);
+        var blogPost = new BlogApp.API.Core.Entities.BlogPost
         {
             Title = "Test Blog Post",
             Content = "Test content",
@@ -38,7 +31,7 @@ public class CommandRepositoryTests
         await context.SaveChangesAsync();
 
         // Assert
-        var savedBlogPost = await context.Set<BlogPost>().FirstOrDefaultAsync(x => x.Slug == "test-blog-post");
+        var savedBlogPost = await context.Set<BlogApp.API.Core.Entities.BlogPost>().FirstOrDefaultAsync(x => x.Slug == "test-blog-post");
         savedBlogPost.Should().NotBeNull();
         savedBlogPost!.Title.Should().Be("Test Blog Post");
     }
@@ -48,8 +41,8 @@ public class CommandRepositoryTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var repository = new CommandRepository<BlogPost>(context);
-        var blogPost = new BlogPost
+        var repository = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogApp.API.Core.Entities.BlogPost>(context);
+        var blogPost = new BlogApp.API.Core.Entities.BlogPost
         {
             Title = "Original Title",
             Content = "Original content",
@@ -67,7 +60,7 @@ public class CommandRepositoryTests
         await context.SaveChangesAsync();
 
         // Assert
-        var updatedBlogPost = await context.Set<BlogPost>().FirstOrDefaultAsync(x => x.Slug == "test-blog-post");
+        var updatedBlogPost = await context.Set<BlogApp.API.Core.Entities.BlogPost>().FirstOrDefaultAsync(x => x.Slug == "test-blog-post");
         updatedBlogPost.Should().NotBeNull();
         updatedBlogPost!.Title.Should().Be("Updated Title");
     }
@@ -77,8 +70,8 @@ public class CommandRepositoryTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var repository = new CommandRepository<BlogPost>(context);
-        var blogPost = new BlogPost
+        var repository = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogApp.API.Core.Entities.BlogPost>(context);
+        var blogPost = new BlogApp.API.Core.Entities.BlogPost
         {
             Title = "Test Blog Post",
             Content = "Test content",
@@ -95,7 +88,7 @@ public class CommandRepositoryTests
         await context.SaveChangesAsync();
 
         // Assert
-        var deletedBlogPost = await context.Set<BlogPost>().FirstOrDefaultAsync(x => x.Slug == "test-blog-post");
+        var deletedBlogPost = await context.Set<BlogApp.API.Core.Entities.BlogPost>().FirstOrDefaultAsync(x => x.Slug == "test-blog-post");
         deletedBlogPost.Should().BeNull();
     }
 
@@ -104,8 +97,8 @@ public class CommandRepositoryTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var repository = new CommandRepository<BlogPost>(context);
-        var blogPost = new BlogPost
+        var repository = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogApp.API.Core.Entities.BlogPost>(context);
+        var blogPost = new BlogApp.API.Core.Entities.BlogPost
         {
             Title = "Test Blog Post",
             Content = "Test content",
@@ -130,7 +123,7 @@ public class CommandRepositoryTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var repository = new CommandRepository<BlogPost>(context);
+        var repository = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogApp.API.Core.Entities.BlogPost>(context);
 
         // Act
         var result = await repository.GetByIdAsync(999);
@@ -144,8 +137,8 @@ public class CommandRepositoryTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var repository = new CommandRepository<BlogPost>(context);
-        var blogPosts = new List<BlogPost>
+        var repository = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogApp.API.Core.Entities.BlogPost>(context);
+        var blogPosts = new List<BlogApp.API.Core.Entities.BlogPost>
         {
             new()
             {
@@ -176,7 +169,7 @@ public class CommandRepositoryTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Count.Should().Be(2);
+        result.Count().Should().Be(2);
         result.Should().Contain(x => x.Title == "First Blog Post");
         result.Should().Contain(x => x.Title == "Second Blog Post");
     }
@@ -186,7 +179,7 @@ public class CommandRepositoryTests
     {
         // Arrange
         using var context = new CommandDbContext(_options);
-        var repository = new CommandRepository<BlogPost>(context);
+        var repository = new BlogApp.API.Infrastructure.Persistence.Repositories.Implementations.CommandRepository<BlogApp.API.Core.Entities.BlogPost>(context);
 
         // Act
         var result = await repository.GetAllAsync();

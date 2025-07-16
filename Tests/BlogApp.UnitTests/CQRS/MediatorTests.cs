@@ -1,12 +1,3 @@
-using BlogApp.API.Application.CQRS;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Application.Features.Auth.Commands;
-using BlogApp.API.Application.Features.Blog.Queries;
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using Xunit;
-
 namespace BlogApp.UnitTests.CQRS;
 
 public class MediatorTests
@@ -27,17 +18,13 @@ public class MediatorTests
         // Arrange
         var services = new ServiceCollection();
         var mockHandler = new Mock<ICommandHandler<LoginCommand, BaseResponse<LoginResponse>>>();
-        var command = new LoginCommand
-        {
-            Email = "test@example.com",
-            Password = "Password123!"
-        };
+        var command = new LoginCommand("test@example.com", "Password123!");
 
         var expectedResponse = BaseResponse<LoginResponse>.Success(
             new LoginResponse { Email = "test@example.com", UserName = "testuser" },
             "Login successful");
 
-        mockHandler.Setup(x => x.HandleAsync(command))
+        mockHandler.Setup(x => x.HandleAsync(It.IsAny<LoginCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResponse);
 
         services.AddScoped<ICommandHandler<LoginCommand, BaseResponse<LoginResponse>>>(_ => mockHandler.Object);
@@ -45,7 +32,7 @@ public class MediatorTests
         var mediator = new Mediator(serviceProvider);
 
         // Act
-        var result = await mediator.SendAsync(command);
+        var result = await mediator.SendAsync<LoginCommand, BaseResponse<LoginResponse>>(command, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -60,20 +47,24 @@ public class MediatorTests
         // Arrange
         var services = new ServiceCollection();
         var mockHandler = new Mock<IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>>();
-        var query = new GetBlogPostsQuery
-        {
-            Page = 1,
-            PageSize = 10
-        };
+        var query = new GetBlogPostsQuery(1, 10);
 
+        var blogPostDto = new BlogPostDTO(
+            1,
+            "Test Blog Post",
+            "Test content",
+            "test-blog-post",
+            "author",
+            "category",
+            System.Array.Empty<string>()
+        );
+        var blogPosts = new List<BlogPostDTO> { blogPostDto };
         var expectedResponse = BaseResponse<List<BlogPostDTO>>.Success(
-            new List<BlogPostDTO>
-            {
-                new() { Title = "Test Blog Post", Content = "Test content" }
-            },
-            "Blog posts retrieved successfully");
+            blogPosts,
+            "Blog posts retrieved successfully"
+        );
 
-        mockHandler.Setup(x => x.HandleAsync(query))
+        mockHandler.Setup(x => x.HandleAsync(It.IsAny<GetBlogPostsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResponse);
 
         services.AddScoped<IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>>(_ => mockHandler.Object);
@@ -81,7 +72,7 @@ public class MediatorTests
         var mediator = new Mediator(serviceProvider);
 
         // Act
-        var result = await mediator.SendAsync(query);
+        var result = await mediator.SendAsync<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>(query, CancellationToken.None);
 
         // Assert
         result.Should().NotBeNull();
@@ -95,14 +86,10 @@ public class MediatorTests
     public async Task SendAsync_WithHandlerNotFound_ShouldThrowException()
     {
         // Arrange
-        var command = new LoginCommand
-        {
-            Email = "test@example.com",
-            Password = "Password123!"
-        };
+        var command = new LoginCommand("test@example.com", "Password123!");
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _mediator.SendAsync(command));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _mediator.SendAsync<LoginCommand, BaseResponse<LoginResponse>>(command));
     }
 
     [Fact]
@@ -112,7 +99,7 @@ public class MediatorTests
         LoginCommand? command = null;
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _mediator.SendAsync(command!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _mediator.SendAsync<LoginCommand, BaseResponse<LoginResponse>>(command!));
     }
 
     [Fact]
@@ -122,7 +109,7 @@ public class MediatorTests
         GetBlogPostsQuery? query = null;
 
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _mediator.SendAsync(query!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _mediator.SendAsync<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>(query!));
     }
 
     [Fact]
@@ -131,13 +118,9 @@ public class MediatorTests
         // Arrange
         var services = new ServiceCollection();
         var mockHandler = new Mock<ICommandHandler<LoginCommand, BaseResponse<LoginResponse>>>();
-        var command = new LoginCommand
-        {
-            Email = "test@example.com",
-            Password = "Password123!"
-        };
+        var command = new LoginCommand("test@example.com", "Password123!");
 
-        mockHandler.Setup(x => x.HandleAsync(command))
+        mockHandler.Setup(x => x.HandleAsync(It.IsAny<LoginCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Test exception"));
 
         services.AddScoped<ICommandHandler<LoginCommand, BaseResponse<LoginResponse>>>(_ => mockHandler.Object);
@@ -145,7 +128,7 @@ public class MediatorTests
         var mediator = new Mediator(serviceProvider);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.SendAsync(command));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.SendAsync<LoginCommand, BaseResponse<LoginResponse>>(command));
     }
 
     [Fact]
@@ -154,13 +137,9 @@ public class MediatorTests
         // Arrange
         var services = new ServiceCollection();
         var mockHandler = new Mock<IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>>();
-        var query = new GetBlogPostsQuery
-        {
-            Page = 1,
-            PageSize = 10
-        };
+        var query = new GetBlogPostsQuery(1, 10);
 
-        mockHandler.Setup(x => x.HandleAsync(query))
+        mockHandler.Setup(x => x.HandleAsync(It.IsAny<GetBlogPostsQuery>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Test exception"));
 
         services.AddScoped<IQueryHandler<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>>(_ => mockHandler.Object);
@@ -168,6 +147,6 @@ public class MediatorTests
         var mediator = new Mediator(serviceProvider);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.SendAsync(query));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.SendAsync<GetBlogPostsQuery, BaseResponse<List<BlogPostDTO>>>(query));
     }
 } 

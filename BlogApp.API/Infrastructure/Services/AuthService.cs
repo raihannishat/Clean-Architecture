@@ -1,14 +1,4 @@
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Core.Interfaces;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using AutoRegister;
+
 
 namespace BlogApp.API.Infrastructure.Services;
 

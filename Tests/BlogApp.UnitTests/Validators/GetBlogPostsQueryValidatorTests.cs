@@ -1,7 +1,3 @@
-using BlogApp.API.Application.Features.Blog.Queries;
-using FluentAssertions;
-using Xunit;
-
 namespace BlogApp.UnitTests.Validators;
 
 public class GetBlogPostsQueryValidatorTests
@@ -46,7 +42,7 @@ public class GetBlogPostsQueryValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.Page));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.Page) && e.ErrorMessage == "Page must be greater than 0");
     }
 
     [Fact]
@@ -64,7 +60,7 @@ public class GetBlogPostsQueryValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.Page));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.Page) && e.ErrorMessage == "Page must be greater than 0");
     }
 
     [Fact]
@@ -82,7 +78,7 @@ public class GetBlogPostsQueryValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.PageSize));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.PageSize) && e.ErrorMessage == "Page size must be greater than 0");
     }
 
     [Fact]
@@ -100,7 +96,7 @@ public class GetBlogPostsQueryValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.PageSize));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.PageSize) && e.ErrorMessage == "Page size must be greater than 0");
     }
 
     [Fact]
@@ -118,7 +114,7 @@ public class GetBlogPostsQueryValidatorTests
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.PageSize));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(GetBlogPostsQuery.PageSize) && e.ErrorMessage == "Page size cannot exceed 100");
     }
 
     [Fact]

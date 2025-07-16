@@ -1,8 +1,4 @@
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Core.Interfaces;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using AutoRegister;
+
 
 namespace BlogApp.API.Infrastructure.Services;
 
@@ -39,10 +35,10 @@ public class BlogService : IBlogService
         return BaseResponse<List<Category>>.Success(categories.ToList(), "Categories retrieved successfully");
     }
 
-    public async Task<BaseResponse<List<Tag>>> GetTagsAsync()
+    public async Task<BaseResponse<List<Core.Entities.Tag>>> GetTagsAsync()
     {
-        var tags = await _unitOfWork.Repository<Tag>().GetAllAsync();
-        return BaseResponse<List<Tag>>.Success(tags.ToList(), "Tags retrieved successfully");
+        var tags = await _unitOfWork.Repository<Core.Entities.Tag>().GetAllAsync();
+        return BaseResponse<List<Core.Entities.Tag>>.Success(tags.ToList(), "Tags retrieved successfully");
     }
 
     public async Task<BaseResponse<List<BlogPost>>> SearchPostsAsync(string searchTerm, int page = 1, int pageSize = 10, bool includeUnpublished = false)

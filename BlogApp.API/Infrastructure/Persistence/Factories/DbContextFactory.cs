@@ -1,9 +1,4 @@
-using BlogApp.API.Infrastructure.Persistence.Contexts;
-using BlogApp.API.Infrastructure.Persistence.Factories;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using AutoRegister;
+
 
 namespace BlogApp.API.Infrastructure.Persistence.Factories;
 

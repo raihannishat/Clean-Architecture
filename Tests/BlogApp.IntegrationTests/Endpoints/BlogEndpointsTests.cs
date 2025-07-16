@@ -1,13 +1,3 @@
-using BlogApp.API.Application.Features.Blog.Commands;
-using BlogApp.API.Application.Features.Blog.Queries;
-using BlogApp.API.TestHost;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using Xunit;
-
 namespace BlogApp.IntegrationTests.Endpoints;
 
 public class BlogEndpointsTests : IClassFixture<WebApplicationFactory<Program>>

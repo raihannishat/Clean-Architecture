@@ -1,8 +1,6 @@
-using FluentValidation;
-using AutoRegister;
-using BlogApp.API.Application.Features.Blog.DTOs;
 
-namespace BlogApp.API.Application.Features.Blog.Commands;
+
+namespace BlogApp.API.Application.Features.Blog.Validators;
 
 [Register(ServiceLifetime.Scoped)]
 public class CreateBlogPostCommandValidator : AbstractValidator<CreateBlogPostCommand>

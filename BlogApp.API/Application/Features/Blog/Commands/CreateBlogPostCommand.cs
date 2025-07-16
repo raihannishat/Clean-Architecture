@@ -1,11 +1,3 @@
-using BlogApp.API.Application.CQRS;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using AutoRegister;
-using BlogApp.API.Application.Features.Blog.DTOs;
-using AutoMapper;
-
 namespace BlogApp.API.Application.Features.Blog.Commands;
 
 public record CreateBlogPostCommand(
@@ -13,18 +5,18 @@ public record CreateBlogPostCommand(
     string Content,
     string Slug,
     int CategoryId,
-    List<int> TagIds,
-    string AuthorId
-) : ICommand<BaseResponse<BlogPostDTO>>;
+    string AuthorId,
+    IEnumerable<int> TagIds
+) : BlogApp.API.Application.CQRS.ICommand<BaseResponse<BlogPostDTO>>;
 
 [Register(ServiceLifetime.Scoped)]
-public class CreateBlogPostCommandHandler : ICommandHandler<CreateBlogPostCommand, BaseResponse<BlogPostDTO>>
+public class CreateBlogPostCommandHandler : BlogApp.API.Application.CQRS.ICommandHandler<CreateBlogPostCommand, BaseResponse<BlogPostDTO>>
 {
     private readonly ICommandUnitOfWork _unitOfWork;
     private readonly IOutboxService _outboxService;
-    private readonly IMapper _mapper;
+    private readonly IAutoMapper _mapper;
 
-    public CreateBlogPostCommandHandler(IUnitOfWorkFactory unitOfWorkFactory, IOutboxService outboxService, IMapper mapper)
+    public CreateBlogPostCommandHandler(IUnitOfWorkFactory unitOfWorkFactory, IOutboxService outboxService, IAutoMapper mapper)
     {
         _unitOfWork = unitOfWorkFactory.CreateCommandUnitOfWork();
         _outboxService = outboxService;
@@ -39,10 +31,10 @@ public class CreateBlogPostCommandHandler : ICommandHandler<CreateBlogPostComman
             return BaseResponse<BlogPostDTO>.NotFound($"Category with ID {command.CategoryId} not found");
         }
 
-        var tags = new List<Tag>();
+        var tags = new List<Core.Entities.Tag>();
         foreach (var tagId in command.TagIds)
         {
-            var tag = await _unitOfWork.Repository<Tag>().GetByIdAsync(tagId);
+            var tag = await _unitOfWork.Repository<Core.Entities.Tag>().GetByIdAsync(tagId);
             if (tag == null)
             {
                 return BaseResponse<BlogPostDTO>.NotFound($"Tag with ID {tagId} not found");

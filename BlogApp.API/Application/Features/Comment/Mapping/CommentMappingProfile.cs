@@ -1,6 +1,3 @@
-using AutoMapper;
-using BlogApp.API.Application.Features.Comment.DTOs;
-
 namespace BlogApp.API.Application.Features.Comment.Mapping
 {
     public class CommentMappingProfile : Profile

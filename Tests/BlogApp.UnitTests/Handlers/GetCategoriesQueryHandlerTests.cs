@@ -1,12 +1,3 @@
-using BlogApp.API.Application.Features.Blog.Queries;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.UnitOfWork.Interfaces;
-using BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces;
-using FluentAssertions;
-using Moq;
-using Xunit;
-
 namespace BlogApp.UnitTests.Handlers;
 
 public class GetCategoriesQueryHandlerTests
@@ -14,24 +5,26 @@ public class GetCategoriesQueryHandlerTests
     private readonly Mock<IUnitOfWorkFactory> _mockUnitOfWorkFactory;
     private readonly Mock<IQueryUnitOfWork> _mockUnitOfWork;
     private readonly GetCategoriesQueryHandler _handler;
+    private readonly Mock<IAutoMapper> _mockMapper;
 
     public GetCategoriesQueryHandlerTests()
     {
         _mockUnitOfWorkFactory = new Mock<IUnitOfWorkFactory>();
         _mockUnitOfWork = new Mock<IQueryUnitOfWork>();
+        _mockMapper = new Mock<IAutoMapper>();
         _mockUnitOfWorkFactory.Setup(x => x.CreateQueryUnitOfWork()).Returns(_mockUnitOfWork.Object);
-        _handler = new GetCategoriesQueryHandler(_mockUnitOfWorkFactory.Object);
+        _handler = new BlogApp.API.Application.Features.Blog.Queries.GetCategoriesQueryHandler(_mockUnitOfWorkFactory.Object, _mockMapper.Object);
     }
 
     [Fact]
     public async Task HandleAsync_WithValidQuery_ShouldReturnSuccessResponse()
     {
         // Arrange
-        var query = new GetCategoriesQuery();
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetCategoriesQuery();
 
-        var categories = new List<Category>
+        var categories = new List<BlogApp.API.Core.Entities.Category>
         {
-            new()
+            new BlogApp.API.Core.Entities.Category
             {
                 Id = 1,
                 Name = "Technology",
@@ -39,7 +32,7 @@ public class GetCategoriesQueryHandlerTests
                 IconClass = "fas fa-laptop",
                 Color = "#007bff"
             },
-            new()
+            new BlogApp.API.Core.Entities.Category
             {
                 Id = 2,
                 Name = "Travel",
@@ -47,7 +40,7 @@ public class GetCategoriesQueryHandlerTests
                 IconClass = "fas fa-plane",
                 Color = "#28a745"
             },
-            new()
+            new BlogApp.API.Core.Entities.Category
             {
                 Id = 3,
                 Name = "Food",
@@ -57,11 +50,13 @@ public class GetCategoriesQueryHandlerTests
             }
         };
 
-        var mockCategoryRepo = new Mock<IQueryRepository<Category>>();
+        var mockCategoryRepo = new Mock<BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.IQueryRepository<BlogApp.API.Core.Entities.Category>>();
         mockCategoryRepo.Setup(x => x.GetAllAsync())
             .ReturnsAsync(categories);
 
-        _mockUnitOfWork.Setup(x => x.Repository<Category>()).Returns(mockCategoryRepo.Object);
+        _mockUnitOfWork.Setup(x => x.Repository<BlogApp.API.Core.Entities.Category>()).Returns(mockCategoryRepo.Object);
+        _mockMapper.Setup(x => x.Map<BlogApp.API.Application.Features.Blog.DTOs.CategoryDTO>(It.IsAny<BlogApp.API.Core.Entities.Category>()))
+            .Returns((BlogApp.API.Core.Entities.Category c) => new BlogApp.API.Application.Features.Blog.DTOs.CategoryDTO(c.Id, c.Name, c.IsActive));
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -80,13 +75,15 @@ public class GetCategoriesQueryHandlerTests
     public async Task HandleAsync_WithNoCategories_ShouldReturnEmptyList()
     {
         // Arrange
-        var query = new GetCategoriesQuery();
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetCategoriesQuery();
 
-        var mockCategoryRepo = new Mock<IQueryRepository<Category>>();
+        var mockCategoryRepo = new Mock<BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.IQueryRepository<BlogApp.API.Core.Entities.Category>>();
         mockCategoryRepo.Setup(x => x.GetAllAsync())
-            .ReturnsAsync(new List<Category>());
+            .ReturnsAsync(new List<BlogApp.API.Core.Entities.Category>());
 
-        _mockUnitOfWork.Setup(x => x.Repository<Category>()).Returns(mockCategoryRepo.Object);
+        _mockUnitOfWork.Setup(x => x.Repository<BlogApp.API.Core.Entities.Category>()).Returns(mockCategoryRepo.Object);
+        _mockMapper.Setup(x => x.Map<BlogApp.API.Application.Features.Blog.DTOs.CategoryDTO>(It.IsAny<BlogApp.API.Core.Entities.Category>()))
+            .Returns((BlogApp.API.Core.Entities.Category c) => new BlogApp.API.Application.Features.Blog.DTOs.CategoryDTO(c.Id, c.Name, c.IsActive));
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -102,11 +99,11 @@ public class GetCategoriesQueryHandlerTests
     public async Task HandleAsync_WithSingleCategory_ShouldReturnSingleItem()
     {
         // Arrange
-        var query = new GetCategoriesQuery();
+        var query = new BlogApp.API.Application.Features.Blog.Queries.GetCategoriesQuery();
 
-        var categories = new List<Category>
+        var categories = new List<BlogApp.API.Core.Entities.Category>
         {
-            new()
+            new BlogApp.API.Core.Entities.Category
             {
                 Id = 1,
                 Name = "Technology",
@@ -116,11 +113,13 @@ public class GetCategoriesQueryHandlerTests
             }
         };
 
-        var mockCategoryRepo = new Mock<IQueryRepository<Category>>();
+        var mockCategoryRepo = new Mock<BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces.IQueryRepository<BlogApp.API.Core.Entities.Category>>();
         mockCategoryRepo.Setup(x => x.GetAllAsync())
             .ReturnsAsync(categories);
 
-        _mockUnitOfWork.Setup(x => x.Repository<Category>()).Returns(mockCategoryRepo.Object);
+        _mockUnitOfWork.Setup(x => x.Repository<BlogApp.API.Core.Entities.Category>()).Returns(mockCategoryRepo.Object);
+        _mockMapper.Setup(x => x.Map<BlogApp.API.Application.Features.Blog.DTOs.CategoryDTO>(It.IsAny<BlogApp.API.Core.Entities.Category>()))
+            .Returns((BlogApp.API.Core.Entities.Category c) => new BlogApp.API.Application.Features.Blog.DTOs.CategoryDTO(c.Id, c.Name, c.IsActive));
 
         // Act
         var result = await _handler.HandleAsync(query);
@@ -131,6 +130,6 @@ public class GetCategoriesQueryHandlerTests
         result.Data.Should().NotBeNull();
         result.Data!.Count.Should().Be(1);
         result.Data[0].Name.Should().Be("Technology");
-        result.Data[0].Slug.Should().Be("technology");
+        // Slug property does not exist on CategoryDTO
     }
 } 

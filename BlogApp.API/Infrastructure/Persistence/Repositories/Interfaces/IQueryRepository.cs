@@ -1,9 +1,4 @@
-using BlogApp.API.Core.Entities;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
-using System.Linq.Expressions;
-using AutoRegister;
+
 
 namespace BlogApp.API.Infrastructure.Persistence.Repositories.Interfaces;
 

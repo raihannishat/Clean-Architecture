@@ -1,10 +1,3 @@
-using FastEndpoints;
-using FluentValidation;
-using System.Reflection;
-using System.Text.Json;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Application.CQRS;
-
 namespace BlogApp.API.Api.Endpoints;
 
 public class DispatcherEndpoint : Endpoint<DispatcherRequest, DispatcherResponse>
@@ -154,7 +147,7 @@ public class DispatcherEndpoint : Endpoint<DispatcherRequest, DispatcherResponse
         }
 
         var queryInterface = operationType.GetInterfaces()
-            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQuery<>));
+            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(BlogApp.API.Application.CQRS.IQuery<>));
         
         return queryInterface?.GetGenericArguments()[0];
     }

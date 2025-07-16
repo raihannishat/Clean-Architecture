@@ -1,9 +1,3 @@
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
-using FluentAssertions;
-using Xunit;
-
 namespace BlogApp.E2ETests.UI;
 
 public class AuthE2ETests : IDisposable

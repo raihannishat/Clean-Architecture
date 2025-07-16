@@ -22,49 +22,82 @@ A modern blog application built with ASP.NET Core 8.0 (Clean Architecture + CQRS
 - **State Management**: RxJS Observables
 - **Routing**: Angular Router
 
-## 📁 Project Structure
+## 📁 Project Structure (Detailed)
 
 ```
-example/
-├── BlogApp.API/                    # Backend API
-│   ├── Api/                       # API Layer
-│   │   ├── Configuration/         # FastEndpoints Configuration
-│   │   └── Endpoints/             # API Endpoints
-│   ├── Application/               # Application Layer
-│   │   ├── CQRS/                 # CQRS Implementation
-│   │   │   ├── Commands/         # Command Handlers
-│   │   │   ├── Handlers/         # Query Handlers
-│   │   │   ├── ICommand.cs       # Command Interface
-│   │   │   ├── IQuery.cs         # Query Interface
-│   │   │   └── Mediator.cs       # Mediator Implementation
-│   │   └── Features/             # Feature Modules
-│   │       ├── Auth/             # Authentication
-│   │       ├── Blog/             # Blog Management
-│   │       └── Comment/          # Comment System
-│   ├── Core/                     # Core Layer
-│   │   ├── Entities/             # Domain Entities
-│   │   ├── Exceptions/           # Custom Exceptions
-│   │   └── Interfaces/           # Core Interfaces
-│   └── Infrastructure/           # Infrastructure Layer
-│       ├── Persistence/          # Data Access
-│       │   ├── Contexts/         # DbContexts
-│       │   ├── Repositories/     # Repository Pattern
-│       │   ├── UnitOfWork/       # Unit of Work Pattern
-│       │   └── Factories/        # Factory Pattern
-│       └── Services/             # External Services
-└── BlogApp-Angular/              # Angular Frontend
-    ├── src/
-    │   ├── app/
-    │   │   ├── features/         # Feature Modules
-    │   │   │   ├── auth/         # Authentication
-    │   │   │   └── blog/         # Blog Management
-    │   │   ├── models/           # TypeScript Models
-    │   │   ├── services/         # Angular Services
-    │   │   └── interceptors/     # HTTP Interceptors
-    │   └── styles.scss           # Global Styles
-    ├── package.json              # Dependencies
-    └── angular.json              # Angular Configuration
+Clean-Architecture/
+├── BlogApp.API/                # Web API Application (Backend)
+│   ├── Api/                   # API Layer (entry point, endpoints, middleware, config)
+│   │   ├── Configuration/     # FastEndpoints, Swagger, and other API configs
+│   │   ├── Endpoints/         # API endpoint definitions (controllers/handlers)
+│   │   └── Middleware/        # Global exception and custom middleware
+│   ├── Application/           # Application Layer (CQRS, business logic, features)
+│   │   ├── CQRS/              # Core CQRS abstractions (ICommand, IQuery, Mediator, Handlers)
+│   │   ├── Common/            # Shared application-level utilities (BaseResponse, interfaces)
+│   │   ├── Extensions/        # Service registration and DI extensions
+│   │   └── Features/          # Feature modules (by domain)
+│   │       ├── Auth/          # Authentication (DTOs, Commands, Mapping)
+│   │       ├── Blog/          # Blog management (Commands, Queries, DTOs, Validators, Mapping)
+│   │       └── Comment/       # Comment system (Commands, Queries, DTOs, Validators, Mapping)
+│   ├── Core/                  # Core Layer (domain entities, interfaces)
+│   │   ├── Entities/          # Domain models (BlogPost, Comment, User, etc.)
+│   │   └── Interfaces/        # Core business interfaces (e.g., IAuthService, IBlogService)
+│   ├── Infrastructure/        # Infrastructure Layer (data access, services)
+│   │   ├── Persistence/       # Database contexts, repositories, unit of work, factories
+│   │   │   ├── Contexts/      # EF Core and MongoDB DbContexts
+│   │   │   ├── Repositories/  # Repository pattern implementations and interfaces
+│   │   │   ├── UnitOfWork/    # Unit of Work pattern implementations and interfaces
+│   │   │   └── Factories/     # DbContext factories for DI/testing
+│   │   └── Services/          # Infrastructure services (e.g., OutboxProcessor)
+│   ├── Properties/            # Launch settings and project properties
+│   ├── bin/                   # Build output (ignored in VCS)
+│   ├── obj/                   # Build artifacts (ignored in VCS)
+│   └── appsettings.json       # Main API configuration
+├── BlogApp-Angular/           # Angular Frontend Application
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── features/      # Feature modules (auth, blog, etc.)
+│   │   │   ├── models/        # TypeScript interfaces/models (BlogPost, Comment, etc.)
+│   │   │   ├── services/      # Angular services (API, dispatcher, etc.)
+│   │   │   ├── interceptors/  # HTTP interceptors (e.g., auth)
+│   │   │   └── components/    # UI components (navigation, dispatcher example, etc.)
+│   │   ├── styles.scss        # Global styles
+│   │   └── ...                # Other Angular config files
+│   ├── package.json           # Frontend dependencies
+│   └── angular.json           # Angular CLI config
+├── Docs/                      # All API and usage documentation (Markdown)
+│   ├── API_TESTING_GUIDE.md
+│   ├── DISPATCHER_USAGE_EXAMPLES.md
+│   ├── GENERIC_RESPONSE_GUIDE.md
+│   ├── PREFIX_BASED_DISPATCHER_USAGE.md
+│   └── BASERESPONSE_MIGRATION_SUMMARY.md
+├── PROJECT_DOCUMENTATION.md   # Full project documentation (this file)
+└── README.md                  # Main readme
 ```
+
+---
+
+### **Folder Responsibilities (Summary)**
+
+- **Api/**: API entry point, endpoint definitions, middleware, and configuration.
+- **Application/CQRS/**: CQRS interfaces and mediator pattern (ICommand, IQuery, Handlers).
+- **Application/Features/**: Each domain feature (Auth, Blog, Comment) has its own folder, containing Commands, Queries, DTOs, Validators, and Mapping.
+- **Core/Entities/**: Domain models/entities (pure business objects).
+- **Core/Interfaces/**: Core business logic interfaces (service contracts).
+- **Infrastructure/Persistence/**: Data access, repository, unit of work, and context management.
+- **Infrastructure/Services/**: Background services and infrastructure-specific logic.
+- **Docs/**: All API, usage, and migration documentation in Markdown format.
+- **BlogApp-Angular/src/app/**: Angular app source code, organized by features, models, services, and components.
+
+## 📚 API Documentation & Usage
+
+All API usage, dispatcher pattern, request/response format, and operation mapping documentation are now located in the `Docs/` directory at the project root. Please refer to the following files for detailed guides and examples:
+
+- `Docs/API_TESTING_GUIDE.md` — End-to-end API testing and usage examples
+- `Docs/DISPATCHER_USAGE_EXAMPLES.md` — Single dispatcher endpoint usage and request/response format
+- `Docs/GENERIC_RESPONSE_GUIDE.md` — Generic response structure and error handling
+- `Docs/PREFIX_BASED_DISPATCHER_USAGE.md` — Operation/class name mapping and dispatcher conventions
+- `Docs/BASERESPONSE_MIGRATION_SUMMARY.md` — Migration summary and response consistency
 
 ## 🚀 Key Features
 
@@ -198,92 +231,20 @@ await _dbContext.SaveChangesAsync(stoppingToken);
 
 #### 6. On Failure, Message Remains Pending
 - If insert fails, ProcessedOn remains null.
-- The worker will retry in the next polling cycle.
-- This ensures eventual consistency and no data loss.
 
 ---
 
-**Summary:**
-1. API → Command Handler → PostgreSQL + OutboxMessages
-2. OutboxProcessor polls OutboxMessages
-3. Syncs to MongoDB (collection = type name)
-4. Marks as processed or retries on failure
+## 🔗 Further Documentation
 
-This ensures reliable, eventual-consistent db-to-db sync in your CQRS architecture.
+For detailed API usage, dispatcher pattern, request/response format, and operation mapping, see the Docs/ directory:
 
-4. **Run the API**
-   ```bash
-   dotnet run
-   ```
+- `Docs/API_TESTING_GUIDE.md`
+- `Docs/DISPATCHER_USAGE_EXAMPLES.md`
+- `Docs/GENERIC_RESPONSE_GUIDE.md`
+- `Docs/PREFIX_BASED_DISPATCHER_USAGE.md`
+- `Docs/BASERESPONSE_MIGRATION_SUMMARY.md`
 
-### Frontend Setup
-1. **Navigate to Angular project**
-   ```bash
-   cd BlogApp-Angular
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Run the application**
-   ```bash
-   ng serve
-   ```
-
-4. **Access the application**
-   - Angular: `http://localhost:4200`
-   - API: `https://localhost:7001`
-   - Swagger: `https://localhost:7001/swagger`
-
-## 📡 API Usage
-
-### Dispatcher Endpoint
-All API operations go through the single dispatcher endpoint:
-```
-POST /api/dispatcher
-```
-
-### Request Format
-```json
-{
-  "operation": "OperationName",
-  "data": {
-    // Operation-specific parameters
-  }
-}
-```
-
-### Available Operations
-
-#### Authentication
-- `LoginCommand` - User login
-- `RegisterCommand` - User registration
-
-#### Blog Management
-- `CreateBlogPostCommand` - Create new blog post
-- `GetBlogPostsQuery` - Get all published posts
-- `GetBlogPostBySlugQuery` - Get post by slug
-- `GetCategoriesQuery` - Get all categories
-- `GetTagsQuery` - Get all tags
-- `SearchPostsQuery` - Search posts
-
-#### Comments
-- `CreateCommentCommand` - Create new comment
-- `GetCommentsQuery` - Get comments for a post
-
-### Response Format
-All responses follow the `BaseResponse<T>` structure:
-```json
-{
-  "isSuccess": true,
-  "message": "Operation completed successfully",
-  "data": { /* operation-specific data */ },
-  "errors": [],
-  "statusCode": 200
-}
-```
+---
 
 ## 🔧 Development Guidelines
 

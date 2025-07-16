@@ -1,23 +1,4 @@
-using BlogApp.API.Configuration;
-using BlogApp.API.Core.Interfaces;
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence;
-using BlogApp.API.Infrastructure.Persistence.Contexts;
-using BlogApp.API.Infrastructure.Services;
-using BlogApp.API.Application.CQRS;
-using FastEndpoints;
-using FastEndpoints.Swagger;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using AutoRegister;
-using System.Reflection;
-using MongoDB.Driver;
-using BlogApp.API.Application.Common;
-using AutoMapper;
-using BlogApp.API.Application.Extensions;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

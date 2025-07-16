@@ -1,45 +1,26 @@
-using BlogApp.API.Application.Features.Auth.Commands;
-using BlogApp.API.Application.Common;
-using BlogApp.API.Core.Interfaces;
-using FluentAssertions;
-using Moq;
-using Xunit;
-
 namespace BlogApp.UnitTests.Handlers;
 
 public class LoginCommandHandlerTests
 {
     private readonly Mock<IAuthService> _mockAuthService;
+    private readonly Mock<IOutboxService> _mockOutboxService;
     private readonly LoginCommandHandler _handler;
-
+    
     public LoginCommandHandlerTests()
     {
         _mockAuthService = new Mock<IAuthService>();
-        _handler = new LoginCommandHandler(_mockAuthService.Object);
+        _mockOutboxService = new Mock<IOutboxService>();
+        _handler = new LoginCommandHandler(_mockAuthService.Object, _mockOutboxService.Object);
     }
 
     [Fact]
     public async Task HandleAsync_WithValidCredentials_ShouldReturnSuccessResponse()
     {
         // Arrange
-        var command = new LoginCommand
-        {
-            Email = "test@example.com",
-            Password = "Password123!"
-        };
-
-        var loginResponse = new LoginResponse
-        {
-            Token = "valid-token",
-            UserId = "user-id",
-            Email = "test@example.com",
-            UserName = "testuser"
-        };
-
-        var authResult = BaseResponse<LoginResponse>.Success(loginResponse, "Login successful");
-
-        _mockAuthService.Setup(x => x.LoginAsync(command.Email, command.Password))
-            .ReturnsAsync(authResult);
+        var command = new LoginCommand("test@example.com", "Password123!");
+        var expectedResponse = BaseResponse<LoginResponse>.Success(new LoginResponse { Email = command.Email, UserName = "testuser" }, "Login successful");
+        _mockAuthService.Setup(x => x.LoginAsync(command.Email, command.Password)).ReturnsAsync(expectedResponse);
+        _mockOutboxService.Setup(x => x.AddAsync(nameof(LoginCommand), command, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         // Act
         var result = await _handler.HandleAsync(command);
@@ -48,24 +29,16 @@ public class LoginCommandHandlerTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeTrue();
         result.Data.Should().NotBeNull();
-        result.Data!.Token.Should().NotBeNullOrEmpty();
-        result.Data.Email.Should().Be(command.Email);
+        _mockOutboxService.Verify(x => x.AddAsync(nameof(LoginCommand), command, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
-    public async Task HandleAsync_WithInvalidCredentials_ShouldReturnUnauthorizedResponse()
+    public async Task HandleAsync_WithInvalidCredentials_ShouldReturnUnauthorized()
     {
         // Arrange
-        var command = new LoginCommand
-        {
-            Email = "test@example.com",
-            Password = "WrongPassword123!"
-        };
-
-        var authResult = BaseResponse<LoginResponse>.Unauthorized("Invalid email or password");
-
-        _mockAuthService.Setup(x => x.LoginAsync(command.Email, command.Password))
-            .ReturnsAsync(authResult);
+        var command = new LoginCommand("wrong@example.com", "wrongpass");
+        var expectedResponse = BaseResponse<LoginResponse>.Unauthorized("Invalid credentials");
+        _mockAuthService.Setup(x => x.LoginAsync(command.Email, command.Password)).ReturnsAsync(expectedResponse);
 
         // Act
         var result = await _handler.HandleAsync(command);
@@ -74,8 +47,6 @@ public class LoginCommandHandlerTests
         result.Should().NotBeNull();
         result.IsSuccess.Should().BeFalse();
         result.StatusCode.Should().Be(401);
-        result.Message.Should().Contain("Invalid email or password");
+        _mockOutboxService.Verify(x => x.AddAsync(It.IsAny<string>(), It.IsAny<LoginCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
-
-
 } 

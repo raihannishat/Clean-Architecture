@@ -1,7 +1,4 @@
-using FastEndpoints;
-using FastEndpoints.Swagger;
-
-namespace BlogApp.API.Configuration;
+namespace BlogApp.API.Api.Configuration;
 
 public static class FastEndpointsConfig
 {

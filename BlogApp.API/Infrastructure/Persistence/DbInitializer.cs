@@ -1,8 +1,4 @@
-using BlogApp.API.Core.Entities;
-using BlogApp.API.Infrastructure.Persistence.Contexts;
-using BlogApp.API.Infrastructure.Persistence.Factories;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace BlogApp.API.Infrastructure.Persistence;
 
@@ -36,28 +32,28 @@ public static class DbInitializer
             await commandContext.SaveChangesAsync();
         }
 
-        if (!await commandContext.Set<Tag>().AnyAsync())
+        if (!await commandContext.Set<Core.Entities.Tag>().AnyAsync())
         {
-            var tags = new List<Tag>
+            var tags = new List<Core.Entities.Tag>
             {
-                new Tag { Name = "C#", Slug = "csharp", Description = "C# programming language", Color = "#178600" },
-                new Tag { Name = "ASP.NET Core", Slug = "aspnet-core", Description = "ASP.NET Core framework", Color = "#512BD4" },
-                new Tag { Name = "JavaScript", Slug = "javascript", Description = "JavaScript programming", Color = "#F7DF1E" },
-                new Tag { Name = "React", Slug = "react", Description = "React library", Color = "#61DAFB" },
-                new Tag { Name = "Angular", Slug = "angular", Description = "Angular framework", Color = "#DD0031" },
-                new Tag { Name = "Vue.js", Slug = "vuejs", Description = "Vue.js framework", Color = "#4FC08D" },
-                new Tag { Name = "Node.js", Slug = "nodejs", Description = "Node.js runtime", Color = "#339933" },
-                new Tag { Name = "Python", Slug = "python", Description = "Python programming", Color = "#3776AB" },
-                new Tag { Name = "Docker", Slug = "docker", Description = "Docker containers", Color = "#2496ED" },
-                new Tag { Name = "Azure", Slug = "azure", Description = "Microsoft Azure", Color = "#0089D6" },
-                new Tag { Name = "AWS", Slug = "aws", Description = "Amazon Web Services", Color = "#FF9900" },
-                new Tag { Name = "Database", Slug = "database", Description = "Database related topics", Color = "#336791" },
-                new Tag { Name = "API", Slug = "api", Description = "Application Programming Interface", Color = "#FF6B6B" },
-                new Tag { Name = "Security", Slug = "security", Description = "Security and authentication", Color = "#FF4444" },
-                new Tag { Name = "Performance", Slug = "performance", Description = "Performance optimization", Color = "#00C851" }
+                new Core.Entities.Tag { Name = "C#", Slug = "csharp", Description = "C# programming language", Color = "#178600" },
+                new Core.Entities.Tag { Name = "ASP.NET Core", Slug = "aspnet-core", Description = "ASP.NET Core framework", Color = "#512BD4" },
+                new Core.Entities.Tag { Name = "JavaScript", Slug = "javascript", Description = "JavaScript programming", Color = "#F7DF1E" },
+                new Core.Entities.Tag { Name = "React", Slug = "react", Description = "React library", Color = "#61DAFB" },
+                new Core.Entities.Tag { Name = "Angular", Slug = "angular", Description = "Angular framework", Color = "#DD0031" },
+                new Core.Entities.Tag { Name = "Vue.js", Slug = "vuejs", Description = "Vue.js framework", Color = "#4FC08D" },
+                new Core.Entities.Tag { Name = "Node.js", Slug = "nodejs", Description = "Node.js runtime", Color = "#339933" },
+                new Core.Entities.Tag { Name = "Python", Slug = "python", Description = "Python programming", Color = "#3776AB" },
+                new Core.Entities.Tag { Name = "Docker", Slug = "docker", Description = "Docker containers", Color = "#2496ED" },
+                new Core.Entities.Tag { Name = "Azure", Slug = "azure", Description = "Microsoft Azure", Color = "#0089D6" },
+                new Core.Entities.Tag { Name = "AWS", Slug = "aws", Description = "Amazon Web Services", Color = "#FF9900" },
+                new Core.Entities.Tag { Name = "Database", Slug = "database", Description = "Database related topics", Color = "#336791" },
+                new Core.Entities.Tag { Name = "API", Slug = "api", Description = "Application Programming Interface", Color = "#FF6B6B" },
+                new Core.Entities.Tag { Name = "Security", Slug = "security", Description = "Security and authentication", Color = "#FF4444" },
+                new Core.Entities.Tag { Name = "Performance", Slug = "performance", Description = "Performance optimization", Color = "#00C851" }
             };
 
-            commandContext.Set<Tag>().AddRange(tags);
+            commandContext.Set<Core.Entities.Tag>().AddRange(tags);
             await commandContext.SaveChangesAsync();
         }
 
@@ -103,8 +99,8 @@ public static class DbInitializer
             var adminUser = await commandContext.Set<ApplicationUser>().FirstOrDefaultAsync(u => u.Email == "admin@blogapp.com");
             var technologyCategory = await commandContext.Set<Category>().FirstOrDefaultAsync(c => c.Slug == "technology");
             var programmingCategory = await commandContext.Set<Category>().FirstOrDefaultAsync(c => c.Slug == "programming");
-            var csharpTag = await commandContext.Set<Tag>().FirstOrDefaultAsync(t => t.Slug == "csharp");
-            var aspnetTag = await commandContext.Set<Tag>().FirstOrDefaultAsync(t => t.Slug == "aspnet-core");
+            var csharpTag = await commandContext.Set<Core.Entities.Tag>().FirstOrDefaultAsync(t => t.Slug == "csharp");
+            var aspnetTag = await commandContext.Set<Core.Entities.Tag>().FirstOrDefaultAsync(t => t.Slug == "aspnet-core");
 
             if (adminUser != null && technologyCategory != null && programmingCategory != null)
             {

@@ -1,7 +1,3 @@
-using BlogApp.API.Application.Features.Blog.Queries;
-using FluentAssertions;
-using Xunit;
-
 namespace BlogApp.UnitTests.Validators;
 
 public class SearchPostsQueryValidatorTests
@@ -14,181 +10,108 @@ public class SearchPostsQueryValidatorTests
     }
 
     [Fact]
-    public void Validate_WithValidData_ShouldPass()
+    public void Validate_WithEmptySearchTerm_ShouldFail()
     {
         // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = "technology",
-            Page = 1,
-            PageSize = 10
-        };
-
-        // Act
-        var result = _validator.Validate(query);
-
-        // Assert
-        result.IsValid.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Validate_WithEmptySearchTerm_ShouldPass()
-    {
-        // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = "",
-            Page = 1,
-            PageSize = 10
-        };
-
-        // Act
-        var result = _validator.Validate(query);
-
-        // Assert
-        result.IsValid.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Validate_WithNullSearchTerm_ShouldPass()
-    {
-        // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = null,
-            Page = 1,
-            PageSize = 10
-        };
-
-        // Act
-        var result = _validator.Validate(query);
-
-        // Assert
-        result.IsValid.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Validate_WithInvalidPage_ShouldFail()
-    {
-        // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = "technology",
-            Page = 0,
-            PageSize = 10
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.SearchPostsQuery("", 1, 10, false);
 
         // Act
         var result = _validator.Validate(query);
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.Page));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.SearchTerm) && e.ErrorMessage == "Search term is required");
     }
 
     [Fact]
-    public void Validate_WithNegativePage_ShouldFail()
+    public void Validate_WithNullSearchTerm_ShouldFail()
     {
         // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = "technology",
-            Page = -1,
-            PageSize = 10
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.SearchPostsQuery(null!, 1, 10, false);
 
         // Act
         var result = _validator.Validate(query);
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.Page));
-    }
-
-    [Fact]
-    public void Validate_WithInvalidPageSize_ShouldFail()
-    {
-        // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = "technology",
-            Page = 1,
-            PageSize = 0
-        };
-
-        // Act
-        var result = _validator.Validate(query);
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.PageSize));
-    }
-
-    [Fact]
-    public void Validate_WithNegativePageSize_ShouldFail()
-    {
-        // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = "technology",
-            Page = 1,
-            PageSize = -1
-        };
-
-        // Act
-        var result = _validator.Validate(query);
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.PageSize));
-    }
-
-    [Fact]
-    public void Validate_WithLargePageSize_ShouldFail()
-    {
-        // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = "technology",
-            Page = 1,
-            PageSize = 101
-        };
-
-        // Act
-        var result = _validator.Validate(query);
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.PageSize));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.SearchTerm) && e.ErrorMessage == "Search term is required");
     }
 
     [Fact]
     public void Validate_WithLongSearchTerm_ShouldFail()
     {
         // Arrange
-        var query = new SearchPostsQuery
-        {
-            SearchTerm = new string('a', 101),
-            Page = 1,
-            PageSize = 10
-        };
+        var query = new BlogApp.API.Application.Features.Blog.Queries.SearchPostsQuery(new string('a', 201), 1, 10, false);
 
         // Act
         var result = _validator.Validate(query);
 
         // Assert
         result.IsValid.Should().BeFalse();
-        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.SearchTerm));
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.SearchTerm) && e.ErrorMessage == "Search term cannot exceed 200 characters");
     }
 
     [Fact]
-    public void Validate_WithDefaultValues_ShouldPass()
+    public void Validate_WithInvalidPage_ShouldFail()
     {
         // Arrange
-        var query = new SearchPostsQuery();
+        var query = new BlogApp.API.Application.Features.Blog.Queries.SearchPostsQuery("test", 0, 10, false);
+
+        // Act
+        var result = _validator.Validate(query);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.Page) && e.ErrorMessage == "Page must be greater than 0");
+    }
+
+    [Fact]
+    public void Validate_WithNegativePage_ShouldFail()
+    {
+        // Arrange
+        var query = new BlogApp.API.Application.Features.Blog.Queries.SearchPostsQuery("test", -1, 10, false);
+
+        // Act
+        var result = _validator.Validate(query);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.Page) && e.ErrorMessage == "Page must be greater than 0");
+    }
+
+    [Fact]
+    public void Validate_WithInvalidPageSize_ShouldFail()
+    {
+        // Arrange
+        var query = new BlogApp.API.Application.Features.Blog.Queries.SearchPostsQuery("test", 1, 0, false);
+
+        // Act
+        var result = _validator.Validate(query);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.PageSize) && e.ErrorMessage == "Page size must be greater than 0");
+    }
+
+    [Fact]
+    public void Validate_WithLargePageSize_ShouldFail()
+    {
+        // Arrange
+        var query = new BlogApp.API.Application.Features.Blog.Queries.SearchPostsQuery("test", 1, 101, false);
+
+        // Act
+        var result = _validator.Validate(query);
+
+        // Assert
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle(e => e.PropertyName == nameof(SearchPostsQuery.PageSize) && e.ErrorMessage == "Page size cannot exceed 100");
+    }
+
+    [Fact]
+    public void Validate_WithValidData_ShouldPass()
+    {
+        // Arrange
+        var query = new BlogApp.API.Application.Features.Blog.Queries.SearchPostsQuery("test", 1, 10, false);
 
         // Act
         var result = _validator.Validate(query);
