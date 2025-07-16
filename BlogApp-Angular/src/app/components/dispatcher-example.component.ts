@@ -314,7 +314,7 @@ export class DispatcherExampleComponent implements OnInit {
   // Direct Dynamic Dispatcher Usage Examples
   directDynamicDispatch() {
     // Using the dynamic proxy - any method name works!
-    this.dispatcher.dynamic.GetBlogPostsQuery({ page: 1, pageSize: 5 }).subscribe({
+    this.dispatcher.dynamic.GetBlogPosts({ page: 1, pageSize: 5 }).subscribe({
       next: (result) => {
         this.directResult = result;
         console.log('Direct dynamic dispatch result:', result);
@@ -327,7 +327,7 @@ export class DispatcherExampleComponent implements OnInit {
 
   directDynamicDispatchWithParams() {
     // Dynamic method with parameters
-    this.dispatcher.dynamic.GetBlogPostBySlugQuery({ slug: 'sample-post' }).subscribe({
+    this.dispatcher.dynamic.GetBlogPostBySlug({ slug: 'sample-post' }).subscribe({
       next: (result) => {
         this.directResult = result;
         console.log('Direct dynamic dispatch with params:', result);
@@ -340,7 +340,7 @@ export class DispatcherExampleComponent implements OnInit {
 
   directDynamicDispatchCustom() {
     // Any operation name works dynamically!
-    this.dispatcher.dynamic.CustomOperationQuery({ customParam: 'value' }).subscribe({
+    this.dispatcher.dynamic.CustomOperation({ customParam: 'value' }).subscribe({
       next: (result) => {
         this.directResult = result;
         console.log('Custom operation result:', result);
@@ -354,7 +354,7 @@ export class DispatcherExampleComponent implements OnInit {
   // Generic Dispatch Usage Examples
   genericDispatch() {
     // Using the generic dispatch method
-    this.dispatcher.dispatch<any[]>('GetBlogPostsQuery', { page: 1, pageSize: 3 }).subscribe({
+    this.dispatcher.dispatch<any[]>('GetBlogPosts', { page: 1, pageSize: 3 }).subscribe({
       next: (result) => {
         this.genericResult = result;
         console.log('Generic dispatch result:', result);
@@ -368,7 +368,7 @@ export class DispatcherExampleComponent implements OnInit {
   genericDispatchWithType() {
     // Using the generic dispatch method with type safety
     this.dispatcher.dispatch<{ id: number; title: string; content: string }[]>(
-      'GetBlogPostsQuery', 
+      'GetBlogPosts', 
       { page: 1, pageSize: 2 }
     ).subscribe({
       next: (result) => {

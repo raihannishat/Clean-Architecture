@@ -4,7 +4,17 @@ This guide explains how to use the fully dynamic DispatcherEndpoint with your An
 
 ## Overview
 
-The Angular app now uses a completely dynamic `DispatcherService` that communicates with the API's dynamic dispatcher endpoint (`/api/dispatch`). This provides a unified way to handle all API operations without requiring manual helper method additions.
+The Angular app uses a dynamic `DispatcherService` to communicate with the API's dispatcher endpoint (`/api/dispatch`).
+
+**Important:**
+- Client-side should send the operation name **without** any `Command` or `Query` suffix (e.g., `CreateBlogPost`, `GetBlogPosts`, `Login`).
+- The API will automatically resolve the correct CQRS type by appending `Command` or `Query` as needed.
+- Client-side does **not** need to know or care about Command/Query patterns or suffixes.
+
+**Recent Additions:**
+- BlogService now supports dynamic methods for tags, categories, comments, and search (e.g., `getTags`, `getCategories`, `getComments`, `createComment`, `searchPosts`).
+- Blog Edit, Blog Detail, Tag/Category selection, and Comment System are all integrated using dynamic dispatcher calls.
+- A Dispatcher Example Component (`src/app/components/dispatcher-example.component.ts`) demonstrates advanced and direct usage patterns in the UI.
 
 ## Architecture
 
@@ -25,33 +35,47 @@ Angular Components → Services → Dynamic DispatcherService → API Dispatcher
 
 ### 2. Updated Services
 - **BlogService**: Uses dynamic dispatcher methods
+  - Includes: getPosts, getPostBySlug, createPost, updatePost, deletePost, getCategories, getTags, searchPosts, getComments, createComment
 - **AuthService**: Uses dynamic dispatcher methods
 
 ## Usage Patterns
 
+**Note:**
+- Always use the operation name without any suffix. For example: `this.dispatcher.dynamic.GetBlogPosts()`, `this.dispatcher.dynamic.Login()`.
+
+**See also:** `dispatcher-example.component.ts` for practical UI usage of all dispatcher patterns, including blog, auth, comments, tags, categories, and custom operations.
+
 ### 1. Dynamic Proxy Usage (Recommended)
 
 ```typescript
-// Any operation name works automatically!
-this.dispatcher.dynamic.GetBlogPostsQuery({ page: 1, pageSize: 10 })
+// Blog post লোড করা
+this.dispatcher.dynamic.GetBlogPosts({ page: 1, pageSize: 10 })
   .subscribe(posts => {
-    console.log('Posts:', posts);
+    // posts: BlogPost[]
   });
 
-this.dispatcher.dynamic.CreateBlogPostCommand(newPost)
-  .subscribe(post => {
-    console.log('Created post:', post);
-  });
+// নতুন পোস্ট তৈরি করা
+this.dispatcher.dynamic.CreateBlogPost({
+  title: 'New Post',
+  content: 'Post content',
+  categoryId: 1,
+  tagIds: [2, 3]
+}).subscribe(post => {
+  // post: BlogPost
+});
 
-this.dispatcher.dynamic.LoginCommand(credentials)
-  .subscribe(response => {
-    console.log('Login successful:', response);
-  });
+// লগইন
+this.dispatcher.dynamic.Login({
+  email: 'user@example.com',
+  password: 'password123'
+}).subscribe(response => {
+  // response: AuthResponse
+});
 
 // Even custom operations work!
-this.dispatcher.dynamic.CustomOperationQuery({ param: 'value' })
+this.dispatcher.dynamic.CustomOperation({ param: 'value' })
   .subscribe(result => {
-    console.log('Custom result:', result);
+    // result: any
   });
 ```
 
@@ -107,6 +131,12 @@ This means:
 - **Type safety** maintained through generics
 - **Consistent API** across all operations
 
+## Operation Name Convention
+
+- **Client-side:** Use operation name only (no Command/Query suffix). Example: `CreateBlogPost`, `GetBlogPosts`, `Login`.
+- **API-side:** DispatcherEndpoint will append `Command` or `Query` to resolve the correct CQRS type.
+- **No prefix or suffix is needed on the client.**
+
 ## Available Operations (Automatic)
 
 ### Blog Operations
@@ -120,10 +150,18 @@ This means:
 - `SearchPostsQuery` - Search posts with filters
 - `GetCommentsQuery` - Get comments for a post
 - `CreateCommentCommand` - Create new comment
+- `EditBlogPostCommand` - Edit blog post (if implemented in API)
 
 ### Auth Operations
 - `LoginCommand` - User login
 - `RegisterCommand` - User registration
+
+### UI Integration Examples
+- Blog Edit: `/blog/edit/:id` uses dynamic dispatcher for loading and updating posts
+- Blog Detail: `/blog/:slug` uses dispatcher for post and comments
+- Tag/Category: Blog create/edit forms fetch tags/categories dynamically
+- Comments: Blog detail and comment forms use dispatcher for loading/creating comments
+- Dispatcher Example: `/dispatcher-example` route demonstrates all dispatcher usages interactively
 
 ### Custom Operations
 - Any operation name you create in the API will work automatically!

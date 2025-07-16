@@ -10,42 +10,42 @@ export class BlogService {
   constructor(private dispatcher: DispatcherService) {}
 
   getPosts(params: any = {}): Observable<BlogPost[]> {
-    return this.dispatcher.dynamic['GetBlogPostsQuery'](params);
+    return this.dispatcher.dynamic['GetBlogPosts'](params);
   }
 
   getPostBySlug(slug: string): Observable<BlogPost> {
-    return this.dispatcher.dynamic['GetBlogPostBySlugQuery']({ slug });
+    return this.dispatcher.dynamic['GetBlogPostBySlug']({ slug });
   }
 
   createPost(post: CreateBlogPost): Observable<BlogPost> {
-    return this.dispatcher.dynamic['CreateBlogPostCommand'](post);
+    return this.dispatcher.dynamic['CreateBlogPost'](post);
   }
 
   updatePost(post: UpdateBlogPost): Observable<BlogPost> {
-    return this.dispatcher.dynamic['UpdateBlogPostCommand'](post);
+    return this.dispatcher.dynamic['UpdateBlogPost'](post);
   }
 
   deletePost(id: number): Observable<void> {
-    return this.dispatcher.dynamic['DeleteBlogPostCommand']({ id });
+    return this.dispatcher.dynamic['DeleteBlogPost']({ id });
   }
 
   getCategories(): Observable<Category[]> {
-    return this.dispatcher.dynamic['GetCategoriesQuery']({});
+    return this.dispatcher.dynamic['GetCategories']({});
   }
 
   getTags(): Observable<Tag[]> {
-    return this.dispatcher.dynamic['GetTagsQuery']({});
+    return this.dispatcher.dynamic['GetTags']({});
   }
 
   searchPosts(params: any): Observable<BlogPost[]> {
-    return this.dispatcher.dynamic['SearchPostsQuery'](params);
+    return this.dispatcher.dynamic['SearchPosts'](params);
   }
 
   getComments(postId: number): Observable<Comment[]> {
-    return this.dispatcher.dynamic['GetCommentsQuery']({ postId });
+    return this.dispatcher.dynamic['GetComments']({ postId });
   }
 
   createComment(postId: number, content: string): Observable<Comment> {
-    return this.dispatcher.dynamic['CreateCommentCommand']({ blogPostId: postId, content });
+    return this.dispatcher.dynamic['CreateComment']({ blogPostId: postId, content });
   }
 } 

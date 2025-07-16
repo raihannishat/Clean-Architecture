@@ -16,7 +16,7 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.dispatcher.dynamic['LoginCommand'](credentials).pipe(
+    return this.dispatcher.dynamic['Login'](credentials).pipe(
       tap((response: AuthResponse) => {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));
@@ -26,7 +26,7 @@ export class AuthService {
   }
 
   register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.dispatcher.dynamic['RegisterCommand'](userData).pipe(
+    return this.dispatcher.dynamic['Register'](userData).pipe(
       tap((response: AuthResponse) => {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user', JSON.stringify(response.user));

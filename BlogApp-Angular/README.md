@@ -67,6 +67,10 @@ src/
 │   │       │   └── blog-list.component.ts
 │   │       ├── blog-create/
 │   │       │   └── blog-create.component.ts
+│   │       ├── blog-edit/
+│   │       │   └── blog-edit.component.ts
+│   │       ├── blog-detail/
+│   │       │   └── blog-detail.component.ts
 │   │       └── blog.routes.ts
 │   ├── models/
 │   │   ├── auth.model.ts
@@ -77,6 +81,9 @@ src/
 │   │   └── dispatcher.service.ts
 │   ├── interceptors/
 │   │   └── auth.interceptor.ts
+│   ├── components/
+│   │   ├── nav.component.ts
+│   │   └── dispatcher-example.component.ts
 │   ├── app.component.ts
 │   ├── app.config.ts
 │   └── app.routes.ts
@@ -86,33 +93,61 @@ src/
 └── styles.scss
 ```
 
+## Routes
+
+- `/blog` — Blog List
+- `/blog/create` — Create Blog Post
+- `/blog/edit/:id` — Edit Blog Post
+- `/blog/:slug` — Blog Post Details
+- `/auth/login` — Login
+- `/auth/register` — Register
+- `/dispatcher-example` — Dispatcher Service Demo
+
 ## Features
 
 ### Authentication
 - User login and registration
 - JWT token management
 - Protected routes
+- Reactive user state with BehaviorSubject
+- LocalStorage-based session persistence
 
 ### Blog Management
 - View all blog posts
 - Create new blog posts
+- Edit blog posts
 - View blog post details
 - Add comments to blog posts
 - Search and filter posts
+- Tag and category selection for posts
+- Delete blog posts
+
+### Comment System
+- View comments for a blog post
+- Add new comments
+
+### Tag & Category Management
+- Fetch and select categories and tags for posts
 
 ### Dynamic Dispatcher Service
 - Single service for all API operations
 - Dynamic method creation using Proxy
 - Automatic error handling and response mapping
 - Type-safe operation calls
+- Direct and generic dispatch usage (see Dispatcher Example)
 
 ### UI Components
 - Modern responsive interface
+- Navigation bar with route links
 - Loading states
 - Error handling
 - Form validation
+- Dispatcher Example component for API usage demonstration
 
 ## API Configuration
+
+**Note:**
+- The `operationName` sent to the API must match the CQRS class name (including Command/Query suffix) exactly, with no prefix. For example: `GetBlogPostsQuery`, `CreateBlogPostCommand`, `LoginCommand`.
 
 The application is configured to connect to the .NET Web API running on `https://localhost:7001`. Make sure your API server is running before using the frontend.
 
